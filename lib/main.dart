@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:notine_flutter/screens/home.dart';
 
+import 'screens/category_notes.dart';
+import 'theme/theme_constants.dart';
 import 'theme/theme_manager.dart';
 
 void main() {
@@ -20,12 +22,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       navigatorKey: navigatorKey,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: themeManager.themeMode,
       initialRoute: HomeScreen.routeName,
       routes: {
-        HomeScreen.routeName: (ctx) => const HomeScreen()
+        HomeScreen.routeName: (ctx) => const HomeScreen(),
+        CategoryNote.routeName: (ctx) => const CategoryNote(),
       },
     );
   }
