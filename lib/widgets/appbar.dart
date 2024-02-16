@@ -12,7 +12,7 @@ class CustomAppBar extends StatelessWidget {
   const CustomAppBar({
     Key? key,
     this.back = false,
-    this.divider = true,
+    this.divider = false,
     this.title = 'Notine',
     this.svgIcon,
     this.svgIconOnTapFunction,
