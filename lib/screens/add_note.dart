@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../models/category.dart';
 import '../models/note.dart';
@@ -8,16 +9,16 @@ import '../widgets/custom_text_field.dart';
 import 'choose_category.dart';
 import 'choose_color.dart';
 
-class AddNote extends StatefulWidget {
+class AddNoteScreen extends StatefulWidget {
   static const routeName = '/add-note';
 
-  AddNote({super.key});
+  AddNoteScreen({super.key});
 
   @override
-  State<AddNote> createState() => _AddNoteState();
+  State<AddNoteScreen> createState() => _AddNoteScreenState();
 }
 
-class _AddNoteState extends State<AddNote> {
+class _AddNoteScreenState extends State<AddNoteScreen> {
   final titleController = TextEditingController();
 
   final descriptionController = TextEditingController();
@@ -35,7 +36,7 @@ class _AddNoteState extends State<AddNote> {
   void submitNote() async {
     final title = titleController.text;
     final content = descriptionController.text;
-    final created = DateTime.now();
+    final created = note?.created ?? DateTime.now();
     final updated = DateTime.now();
     final color = this.color;
     final category = this.category;
@@ -51,14 +52,15 @@ class _AddNoteState extends State<AddNote> {
         errorText = 'Category cannot be empty';
       });
     }
-    final note = Note.addNote(
+    final updatedNote = Note.addNote(
+        noteId: note?.id,
         title: title,
         created: created,
         updated: updated,
         category: category,
         content: content,
         color: color);
-    Navigator.of(context).pop(note);
+    Navigator.of(context).pop(updatedNote);
   }
 
   @override
@@ -78,9 +80,18 @@ class _AddNoteState extends State<AddNote> {
         body: SafeArea(
       child: Column(
         children: [
-          const CustomAppBar(
+          CustomAppBar(
             back: true,
-            title: 'Add Note',
+            title: note?.updated != null
+                ? DateFormat('dd MMMM yyyy - HH:mm').format(note!.updated)
+                : 'Add Note',
+            svgIcon: note != null ? 'trash.svg' : null,
+            svgIconOnTapFunction: note != null
+                ? () {
+                    note!.delete();
+                    Navigator.pop(context);
+                  }
+                : null,
           ),
           Expanded(
             child: ListView(
@@ -100,16 +111,15 @@ class _AddNoteState extends State<AddNote> {
           ),
           errorText.isNotEmpty
               ? Center(
-            child: Container(
-                padding:
-                const EdgeInsets.symmetric(vertical: 5),
-                child: Text(
-                  errorText,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.titleMedium!
-                      .copyWith(color: Colors.red),
-                )),
-          )
+                  child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 5),
+                      child: Text(
+                        errorText,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.titleMedium!
+                            .copyWith(color: Colors.red),
+                      )),
+                )
               : const SizedBox(height: 5),
           Container(
             padding: const EdgeInsets.all(20),

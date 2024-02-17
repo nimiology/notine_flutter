@@ -62,14 +62,16 @@ class Note {
     return randomColor;
   }
 
-  static Color? _getKeyFromValue(String value) {
-    final entry =
-        colorNames.entries.firstWhere((entry) => entry.value == value);
-    return entry.key;
+  static Color? _getKeyFromValue(String? value) {
+    if (value != null) {
+      final entry =
+          colorNames.entries.firstWhere((entry) => entry.value == value);
+      return entry.key;
+    }
+    return null;
   }
 
   static Note noteFromMap(Map map) {
-    print(map);
     return Note(
       id: map['id'],
       title: map['title'],
@@ -81,7 +83,7 @@ class Note {
     );
   }
 
-  static Future<List<Note>> getNote() async {
+  static Future<List<Note>> getNotes() async {
     List<Note> items = [];
     List categoryList = await DBHelper.getData('note');
     for (Map categoryMap in categoryList) {
@@ -91,6 +93,7 @@ class Note {
   }
 
   static Future<Note> addNote({
+    int? noteId,
     required String title,
     String? content,
     required DateTime created,
@@ -110,16 +113,34 @@ class Note {
     if (content != null) {
       instanceMap['content'] = content;
     }
+    if (noteId != null) {
+      instanceMap['id'] = noteId;
+    }
     final id = await DBHelper.insert('note', instanceMap);
     instanceMap['id'] = id;
     final instance = Note.noteFromMap(instanceMap);
     return instance;
   }
-// void delete(String id) async {
-//   if (_items.containsKey(id)) {
-//     _items.removeWhere((key, value) => key==id);
-//     await DBHelper.delete("quit_period", id);
-//     notifyListeners();
-//   }
-// }
+
+  static Future<Map<String, List<Note>>> getNotesByCategory() async {
+    Map<String, List<Note>> notesByCategory = {};
+
+    final noteList = await getNotes();
+
+    for (Note note in noteList) {
+      String category = note.category.title;
+
+      if (!notesByCategory.containsKey(category)) {
+        notesByCategory[category] = [];
+      }
+
+      notesByCategory[category]!.add(note);
+    }
+
+    return notesByCategory;
+  }
+
+  void delete() async {
+    await DBHelper.delete("note", id);
+  }
 }

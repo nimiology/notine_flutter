@@ -1,9 +1,24 @@
 import '../helper/db_helpers.dart';
+import 'note.dart';
 
 class Category {
   final String title;
 
   Category({required this.title});
+
+  Future<List<Note>> getCategoryNote() async {
+    List<Note> notes = [];
+
+    final noteList = await Note.getNotes();
+    for (Note note in noteList) {
+      String category = note.category.title;
+      if (category == title) {
+        notes.add(note);
+      }
+    }
+
+    return notes;
+  }
 
   static categoryFromMap(Map map) {
     return Category(title: map['title']);

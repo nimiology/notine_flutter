@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
 
+import '../../models/category.dart';
+import '../../models/note.dart';
 import '../../screens/category_notes.dart';
 import 'note_preview.dart';
 
 class CategoryLine extends StatelessWidget {
-  const CategoryLine({super.key});
+  final List<Note> notes;
+  final Category category;
+  final Function() homeScreenSetState;
+
+  const CategoryLine(
+      {super.key,
+      required this.notes,
+      required this.category,
+      required this.homeScreenSetState});
 
   @override
   Widget build(BuildContext context) {
@@ -18,12 +28,13 @@ class CategoryLine extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Art',
+                category.title,
                 style: theme.textTheme.titleMedium,
               ),
               GestureDetector(
-                onTap: (){
-                  Navigator.pushNamed(context, CategoryNote.routeName);
+                onTap: () {
+                  Navigator.pushNamed(context, CategoryNote.routeName,
+                      arguments: {'category': category});
                 },
                 child: Text(
                   'More',
@@ -36,17 +47,14 @@ class CategoryLine extends StatelessWidget {
         ),
         Container(
           height: 170,
-          padding: EdgeInsets.symmetric(horizontal: 5),
-          // margin: const EdgeInsets.symmetric(vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 5),
           child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: [
-              NotePreview(),
-              NotePreview(),
-              NotePreview(),
-              NotePreview(),
-            ],
-          ),
+              scrollDirection: Axis.horizontal,
+              children: notes.reversed
+                  .take(3)
+                  .map((e) => NotePreview(
+                      note: e, homeScreenSetState: homeScreenSetState))
+                  .toList()),
         )
       ],
     );

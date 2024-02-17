@@ -32,8 +32,8 @@ class MyApp extends StatelessWidget {
       initialRoute: HomeScreen.routeName,
       routes: {
         HomeScreen.routeName: (ctx) => const HomeScreen(),
-        CategoryNote.routeName: (ctx) => const CategoryNote(),
-        AddNote.routeName: (ctx) =>  AddNote(),
+        CategoryNote.routeName: (ctx) => CategoryNote(),
+        AddNoteScreen.routeName: (ctx) =>  AddNoteScreen(),
         ChooseCategoryScreen.routeName: (ctx) =>  const ChooseCategoryScreen(),
         AddCategoryScreen.routeName: (ctx) =>  AddCategoryScreen(),
         ChooseColorScreen.routeName: (ctx) =>  const ChooseColorScreen(),

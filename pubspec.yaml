@@ -41,6 +41,8 @@ dependencies:
   jwt_decoder: ^2.0.1
   google_fonts: ^4.0.4
   flutter_svg: ^2.0.5
+  intl: ^0.18.1
+  provider: ^6.1.1
 
 dev_dependencies:
   flutter_test:
@@ -71,6 +73,7 @@ flutter:
     - assets/svgs/clock-rotate-left-light.svg
     - assets/svgs/plus-solid.svg
     - assets/svgs/chevron-left.svg
+    - assets/svgs/trash.svg
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
