@@ -16,7 +16,7 @@ class DBHelper {
             created DATETIME NOT NULL,
             updated DATETIME NOT NULL,
             color TEXT,
-            category_title TEXT,
+            category_title TEXT NOT NULL,
             FOREIGN KEY (category_title) REFERENCES category(title)
           )
         ''');
@@ -27,13 +27,13 @@ class DBHelper {
           )
         ''');
       },
-      version: 4,
+      version: 5,
     );
   }
 
-  static Future<void> insert(String table, Map<String, Object> data) async {
+  static Future<int> insert(String table, Map<String, Object> data) async {
     final db = await DBHelper.database();
-    db.insert(
+    return db.insert(
       table,
       data,
       conflictAlgorithm: ConflictAlgorithm.replace,

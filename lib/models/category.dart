@@ -18,7 +18,7 @@ class Category {
     return _itemss;
   }
 
-  static Category addQuitPeriod(String title) {
+  static Category addCategory(String title) {
     final instance = Category(title: title);
     DBHelper.insert('category', {
       'title': instance.title,

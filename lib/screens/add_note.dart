@@ -22,13 +22,58 @@ class _AddNoteState extends State<AddNote> {
 
   final descriptionController = TextEditingController();
 
+  String errorText = '';
+
+  bool categoryError = false;
+  bool titleError = false;
+
   Color? color;
   Category? category;
+
+  Note? note;
+
+  void submitNote() async {
+    final title = titleController.text;
+    final content = descriptionController.text;
+    final created = DateTime.now();
+    final updated = DateTime.now();
+    final color = this.color;
+    final category = this.category;
+    if (title.isEmpty) {
+      return setState(() {
+        titleError = true;
+        errorText = 'Title cannot be empty';
+      });
+    }
+    if (category == null) {
+      return setState(() {
+        categoryError = true;
+        errorText = 'Category cannot be empty';
+      });
+    }
+    final note = Note.addNote(
+        title: title,
+        created: created,
+        updated: updated,
+        category: category,
+        content: content,
+        color: color);
+    Navigator.of(context).pop(note);
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
+    final routeArgs = ModalRoute.of(context)!.settings.arguments as Map?;
+    if (routeArgs != null) {
+      note = routeArgs['note'];
+    }
+    if (note != null) {
+      titleController.text = note!.title;
+      descriptionController.text = note!.content!;
+      color = note!.color;
+      category = note!.category;
+    }
     return Scaffold(
         body: SafeArea(
       child: Column(
@@ -44,6 +89,7 @@ class _AddNoteState extends State<AddNote> {
                   controller: titleController,
                   hintText: 'Title',
                   isTitle: true,
+                  error: titleError,
                 ),
                 CustomTextField(
                   controller: descriptionController,
@@ -52,6 +98,19 @@ class _AddNoteState extends State<AddNote> {
               ],
             ),
           ),
+          errorText.isNotEmpty
+              ? Center(
+            child: Container(
+                padding:
+                const EdgeInsets.symmetric(vertical: 5),
+                child: Text(
+                  errorText,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleMedium!
+                      .copyWith(color: Colors.red),
+                )),
+          )
+              : const SizedBox(height: 5),
           Container(
             padding: const EdgeInsets.all(20),
             child: Row(
@@ -71,7 +130,9 @@ class _AddNoteState extends State<AddNote> {
                 CategoryTile(
                     theme: theme,
                     title: category?.title ?? 'Category',
-                    color: theme.scaffoldBackgroundColor,
+                    color: categoryError
+                        ? theme.colorScheme.error
+                        : theme.scaffoldBackgroundColor,
                     onTap: () async {
                       category = await Navigator.pushNamed(
                           context, ChooseCategoryScreen.routeName) as Category?;
@@ -80,7 +141,7 @@ class _AddNoteState extends State<AddNote> {
                       }
                     }),
                 ElevatedButton(
-                    onPressed: () {},
+                    onPressed: submitNote,
                     style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                             vertical: 8, horizontal: 35)),
