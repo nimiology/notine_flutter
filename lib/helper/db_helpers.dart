@@ -5,12 +5,30 @@ import 'package:sqflite/sqlite_api.dart';
 class DBHelper {
   static Future<Database> database() async {
     final dbPath = await sql.getDatabasesPath();
-    return sql.openDatabase(path.join(dbPath, 'database.db'),
-        onCreate: (db, version) {
-      db.execute(
-          "CREATE TABLE note (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL,"
-              " content TEXT, created DATETIME NOT NULL, color TEXT");
-    }, version: 1);
+    return sql.openDatabase(
+      path.join(dbPath, 'database.db'),
+      onCreate: (db, version) async {
+        await db.execute('''
+          CREATE TABLE note(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            content TEXT,
+            created DATETIME NOT NULL,
+            updated DATETIME NOT NULL,
+            color TEXT,
+            category_title TEXT,
+            FOREIGN KEY (category_title) REFERENCES category(title)
+          )
+        ''');
+
+        await db.execute('''
+          CREATE TABLE category(
+            title TEXT PRIMARY KEY
+          )
+        ''');
+      },
+      version: 4,
+    );
   }
 
   static Future<void> insert(String table, Map<String, Object> data) async {

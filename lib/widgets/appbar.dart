@@ -21,7 +21,7 @@ class CustomAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme  = Theme.of(context);
+    final theme = Theme.of(context);
     return Column(
       children: [
         Container(
@@ -39,20 +39,28 @@ class CustomAppBar extends StatelessWidget {
                   height: 16,
                   child: SvgPicture.asset(
                     'assets/svgs/chevron-left.svg',
-                    width: 16,
-                    height: 16,
                     color: theme.colorScheme.onBackground,
                   ),
                 ),
               ),
               Flexible(
-                child: Text(
-                    title,
+                child: Text(title,
                     overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.titleMedium
-                ),
+                    style: theme.textTheme.titleMedium),
               ),
-              Container()
+              svgIcon != null
+                  ? GestureDetector(
+                      onTap: svgIconOnTapFunction,
+                      child: SizedBox(
+                        child: SvgPicture.asset(
+                          'assets/svgs/$svgIcon',
+                          width: 16,
+                          height: 16,
+                          color: theme.colorScheme.onBackground,
+                        ),
+                      ),
+                    )
+                  : Container(),
             ],
           ),
         ),

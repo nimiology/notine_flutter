@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:notine_flutter/screens/home.dart';
 
+import 'screens/add_category.dart';
 import 'screens/add_note.dart';
 import 'screens/category_notes.dart';
+import 'screens/choose_category.dart';
 import 'theme/theme_constants.dart';
 import 'theme/theme_manager.dart';
 
@@ -31,6 +33,8 @@ class MyApp extends StatelessWidget {
         HomeScreen.routeName: (ctx) => const HomeScreen(),
         CategoryNote.routeName: (ctx) => const CategoryNote(),
         AddNote.routeName: (ctx) =>  AddNote(),
+        ChooseCategoryScreen.routeName: (ctx) =>  const ChooseCategoryScreen(),
+        AddCategoryScreen.routeName: (ctx) =>  AddCategoryScreen(),
       },
     );
   }
