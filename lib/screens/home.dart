@@ -36,11 +36,21 @@ class _HomeScreenState extends State<HomeScreen> {
         body: ListView(
       children: [
         HomeAppbar(
-          onTap: () {
-            Navigator.pushNamed(context, AddNoteScreen.routeName);
+          onTap: () async{
+            await Navigator.pushNamed(context, AddNoteScreen.routeName);
             getNotes();
           },
           screenIcon: const Icon(Icons.add),
+        ),
+        if (categories.isEmpty)Center(
+          child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: Text(
+                'No Notes yet!',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium!
+                    .copyWith(color: Colors.red),
+              )),
         ),
         ...categories.keys.map((key) {
           return CategoryLine(
