@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/category.dart';
 import '../widgets/appbar.dart';
 import '../widgets/custom_text_field.dart';
 
@@ -28,13 +29,16 @@ class AddCategoryScreen extends StatelessWidget {
             ]),
           ),
           Container(
-              padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             alignment: Alignment.centerRight,
             child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pop(
+                      context, Category.addQuitPeriod(titleController.text));
+                },
                 style: ElevatedButton.styleFrom(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 35)),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 8, horizontal: 35)),
                 child: Text('Save',
                     style: theme.textTheme.labelLarge
                         ?.copyWith(color: theme.scaffoldBackgroundColor))),

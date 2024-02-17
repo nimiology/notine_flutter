@@ -1,16 +1,29 @@
 import 'package:flutter/material.dart';
 
+import '../models/category.dart';
+import '../models/note.dart';
 import '../widgets/appbar.dart';
 import '../widgets/category_tile.dart';
 import '../widgets/custom_text_field.dart';
 import 'choose_category.dart';
+import 'choose_color.dart';
 
-class AddNote extends StatelessWidget {
+class AddNote extends StatefulWidget {
   static const routeName = '/add-note';
-  final titleController = TextEditingController();
-  final descriptionController = TextEditingController();
 
   AddNote({super.key});
+
+  @override
+  State<AddNote> createState() => _AddNoteState();
+}
+
+class _AddNoteState extends State<AddNote> {
+  final titleController = TextEditingController();
+
+  final descriptionController = TextEditingController();
+
+  Color? color;
+  Category? category;
 
   @override
   Widget build(BuildContext context) {
@@ -46,19 +59,25 @@ class AddNote extends StatelessWidget {
               children: [
                 CategoryTile(
                     theme: theme,
-                    title: 'Color',
-                    color: theme.scaffoldBackgroundColor,
+                    title: colorNames[color] ?? 'Color',
+                    color: color ?? theme.scaffoldBackgroundColor,
                     onTap: () async {
-                      Navigator.pushNamed(
-                          context, ChooseCategoryScreen.routeName);
+                      color = await Navigator.pushNamed(
+                          context, ChooseColorScreen.routeName) as Color?;
+                      if (color != null) {
+                        setState(() {});
+                      }
                     }),
                 CategoryTile(
                     theme: theme,
-                    title: 'Category',
+                    title: category?.title ?? 'Category',
                     color: theme.scaffoldBackgroundColor,
                     onTap: () async {
-                      Navigator.pushNamed(
-                          context, ChooseCategoryScreen.routeName);
+                      category = await Navigator.pushNamed(
+                          context, ChooseCategoryScreen.routeName) as Category?;
+                      if (category != null) {
+                        setState(() {});
+                      }
                     }),
                 ElevatedButton(
                     onPressed: () {},
