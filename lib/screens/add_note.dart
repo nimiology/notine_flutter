@@ -73,8 +73,8 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
     if (note != null) {
       titleController.text = note!.title;
       descriptionController.text = note!.content!;
-      color = note!.color;
-      category = note!.category;
+      color ??= note!.color;
+      category ??= note!.category;
     }
     return Scaffold(
         body: SafeArea(
