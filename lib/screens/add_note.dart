@@ -122,19 +122,22 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                 )
               : const SizedBox(height: 5),
           Container(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            height: 80,
+            padding: const EdgeInsets.only(left: 20, bottom: 20, top: 20),
+            child: ListView(
+              scrollDirection: Axis.horizontal,
               children: [
                 CategoryTile(
                     theme: theme,
                     title: colorNames[color] ?? 'Color',
                     color: color ?? theme.scaffoldBackgroundColor,
                     onTap: () async {
-                      color = await Navigator.pushNamed(
+                      final updatedColor = await Navigator.pushNamed(
                           context, ChooseColorScreen.routeName) as Color?;
-                      if (color != null) {
-                        setState(() {});
+                      if (updatedColor != null) {
+                        setState(() {
+                          color = updatedColor;
+                        });
                       }
                     }),
                 CategoryTile(
@@ -144,10 +147,12 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                         ? theme.colorScheme.error
                         : theme.scaffoldBackgroundColor,
                     onTap: () async {
-                      category = await Navigator.pushNamed(
+                      final updateCategory = await Navigator.pushNamed(
                           context, ChooseCategoryScreen.routeName) as Category?;
-                      if (category != null) {
-                        setState(() {});
+                      if (updateCategory != null) {
+                        setState(() {
+                          category = updateCategory;
+                        });
                       }
                     }),
                 ElevatedButton(

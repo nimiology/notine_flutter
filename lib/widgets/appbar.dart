@@ -35,8 +35,8 @@ class CustomAppBar extends StatelessWidget {
                   Navigator.pop(context);
                 },
                 child: SizedBox(
-                  width: 16,
-                  height: 16,
+                  width: 20,
+                  height: 20,
                   child: SvgPicture.asset(
                     'assets/svgs/chevron-left.svg',
                     color: theme.colorScheme.onBackground,
