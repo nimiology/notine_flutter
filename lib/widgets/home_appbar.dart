@@ -26,7 +26,7 @@ class HomeAppbar extends StatelessWidget {
         children: [
           Text(
             appBarName,
-            style: theme.textTheme.headlineMedium,
+            style: theme.textTheme.displaySmall,
           ),
           if (chatScreenEnabled)
             GestureDetector(
