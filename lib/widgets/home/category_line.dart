@@ -46,7 +46,7 @@ class CategoryLine extends StatelessWidget {
           ),
         ),
         Container(
-          height: 170,
+          height: 220,
           padding: const EdgeInsets.symmetric(horizontal: 5),
           child: ListView(
               scrollDirection: Axis.horizontal,

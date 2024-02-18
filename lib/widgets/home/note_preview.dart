@@ -8,7 +8,8 @@ class NotePreview extends StatefulWidget {
   Note note;
   final Function() homeScreenSetState;
 
-  NotePreview({super.key, required this.note, required this.homeScreenSetState});
+  NotePreview(
+      {super.key, required this.note, required this.homeScreenSetState});
 
   @override
   State<NotePreview> createState() => _NotePreviewState();
@@ -37,66 +38,81 @@ class _NotePreviewState extends State<NotePreview> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return GestureDetector(
-      onTap: () async {
-        final updatedNote = await Navigator.pushNamed(
-            context, AddNoteScreen.routeName,
-            arguments: {'note': widget.note}) as Note?;
-        setState(() {
-          if (updatedNote != null) {
-            widget.note = updatedNote;
-          }
-        });
-        widget.homeScreenSetState();
-      },
-      child: Container(
-        margin: const EdgeInsets.all(15),
-        padding: const EdgeInsets.all(10),
-        width: 150,
-        height: 150,
-        decoration: BoxDecoration(
-            color: widget.note.color, borderRadius: BorderRadius.circular(15)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.note.title,
-              style: theme.textTheme.titleMedium
-                  ?.copyWith(color: theme.scaffoldBackgroundColor),
-              maxLines: 1,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxWidth = constraints.maxWidth;
+
+        return GestureDetector(
+          onTap: () async {
+            final updatedNote = await Navigator.pushNamed(
+              context,
+              AddNoteScreen.routeName,
+              arguments: {'note': widget.note},
+            ) as Note?;
+            setState(() {
+              if (updatedNote != null) {
+                widget.note = updatedNote;
+              }
+            });
+            widget.homeScreenSetState();
+          },
+          child: Container(
+            margin: const EdgeInsets.all(15),
+            padding: const EdgeInsets.all(10),
+            width: maxWidth < 400 ? maxWidth : 200,
+            decoration: BoxDecoration(
+              color: widget.note.color,
+              borderRadius: BorderRadius.circular(15),
             ),
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 10),
-              child: Text(
-                widget.note.content ?? '',
-                maxLines: 2,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.scaffoldBackgroundColor,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                SvgPicture.asset(
-                  'assets/svgs/clock-rotate-left-light.svg',
-                  width: 20,
-                  color: theme.scaffoldBackgroundColor,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.note.title,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: theme.scaffoldBackgroundColor,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 10),
+                      child: Text(
+                        widget.note.content ?? '',
+                        maxLines: 4,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.scaffoldBackgroundColor,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(
-                  width: 10,
+                Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/svgs/clock-rotate-left-light.svg',
+                      width: 20,
+                      color: theme.scaffoldBackgroundColor,
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      timeDifference(),
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.scaffoldBackgroundColor,
+                      ),
+                    ),
+                  ],
                 ),
-                Text(timeDifference(),
-                    style: theme.textTheme.labelSmall
-                        ?.copyWith(color: theme.scaffoldBackgroundColor)),
               ],
-            )
-          ],
-        ),
-      ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -18,7 +18,6 @@ class _CategoryNoteState extends State<CategoryNote> {
   late Category category;
   List<Note> notes = [];
 
-
   void getNotes() async {
     notes = await category.getCategoryNote();
     setState(() {});
@@ -26,10 +25,11 @@ class _CategoryNoteState extends State<CategoryNote> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     final routeArgs = ModalRoute.of(context)!.settings.arguments as Map?;
     if (routeArgs != null) {
       category = routeArgs['category'];
-      if (notes.isEmpty){
+      if (notes.isEmpty) {
         getNotes();
       }
     }
@@ -43,11 +43,12 @@ class _CategoryNoteState extends State<CategoryNote> {
             ),
             Expanded(
               child: GridView.count(
-                  crossAxisCount: 2,
+                  crossAxisCount: size.width > 600 ? 4 : 2, // Adjust the cross axis count based on screen width
+                  childAspectRatio: size.width / (size.height / 1.7), // Adjust aspect ratio for responsiveness
                   children: notes
                       .map((e) => NotePreview(
                             note: e,
-                    homeScreenSetState: getNotes,
+                            homeScreenSetState: getNotes,
                           ))
                       .toList()),
             ),
