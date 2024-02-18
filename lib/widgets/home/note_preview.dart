@@ -63,6 +63,7 @@ class _NotePreviewState extends State<NotePreview> {
               widget.note.title,
               style: theme.textTheme.titleMedium
                   ?.copyWith(color: theme.scaffoldBackgroundColor),
+              maxLines: 1,
             ),
             Container(
               margin: const EdgeInsets.symmetric(vertical: 10),
