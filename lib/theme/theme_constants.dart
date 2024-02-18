@@ -60,7 +60,7 @@ final lightTheme = ThemeData(
     textTheme: textTheme.apply(
       bodyColor: Colors.black,
       displayColor: Colors.black,
-    ),    // unselectedWidgetColor: Colors.white,
+    ),
     colorScheme: const ColorScheme.light(
       primary: Color.fromRGBO(10, 106, 255, 1),
       secondary: Color.fromRGBO(120, 120, 120, 1),
