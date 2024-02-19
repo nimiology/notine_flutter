@@ -10,11 +10,15 @@ class CustomTextField extends StatelessWidget {
   final bool error;
   final bool isTitle;
   final bool multiLine;
+  final ValueChanged<String>? onChanged;
+  final FocusNode? focusNode;
 
   CustomTextField(
       {Key? key,
       required this.controller,
       required this.hintText,
+      this.focusNode,
+      this.onChanged,
       this.svg,
       this.enabled,
       this.error = false,
@@ -45,6 +49,8 @@ class CustomTextField extends StatelessWidget {
               keyboardType: TextInputType.multiline,
               maxLines: multiLine ? null : 1,
               maxLength: multiLine ? null : 30,
+              onChanged: onChanged,
+              focusNode: focusNode,
               decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: hintText,

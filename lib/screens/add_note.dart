@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -20,8 +22,9 @@ class AddNoteScreen extends StatefulWidget {
 
 class _AddNoteScreenState extends State<AddNoteScreen> {
   final titleController = TextEditingController();
-
   final descriptionController = TextEditingController();
+  final titleFocusNode = FocusNode();
+  final descriptionFocusNode = FocusNode();
 
   String errorText = '';
 
@@ -33,34 +36,55 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
 
   Note? note;
 
-  void submitNote() async {
+  @override
+  void initState() {
+    super.initState();
+    titleFocusNode.addListener(_autoSave);
+    descriptionFocusNode.addListener(_autoSave);
+  }
+
+  void _autoSave() {
+    if (!titleFocusNode.hasFocus && !descriptionFocusNode.hasFocus) {
+      if (titleController.text.isNotEmpty && category != null) {
+        submitNote(autoSave: true);
+      }
+    }
+  }
+
+  void submitNote({bool autoSave = false}) async {
     final title = titleController.text;
     final content = descriptionController.text;
     final created = note?.created ?? DateTime.now();
     final updated = DateTime.now();
     final color = this.color;
     final category = this.category;
-    if (title.isEmpty) {
+
+    if (!autoSave && title.isEmpty) {
       return setState(() {
         titleError = true;
         errorText = 'Title cannot be empty';
       });
     }
-    if (category == null) {
+
+    if (!autoSave && category == null) {
       return setState(() {
         categoryError = true;
         errorText = 'Category cannot be empty';
       });
     }
+
     final updatedNote = Note.addNote(
         noteId: note?.id,
         title: title,
         created: created,
         updated: updated,
-        category: category,
+        category: category!,
         content: content,
         color: color);
-    Navigator.of(context).pop(updatedNote);
+
+    if (!autoSave) {
+      Navigator.of(context).pop(updatedNote);
+    }
   }
 
   @override
@@ -77,57 +101,64 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       category ??= note!.category;
     }
     return Scaffold(
-        body: SafeArea(
-      child: Column(
-        children: [
-          CustomAppBar(
-            back: true,
-            title: note?.updated != null
-                ? DateFormat('dd MMMM yyyy - HH:mm').format(note!.updated)
-                : 'Add Note',
-            svgIcon: note != null ? 'trash.svg' : null,
-            svgIconOnTapFunction: note != null
-                ? () {
-                    note!.delete();
-                    Navigator.pop(context);
-                  }
-                : null,
-          ),
-          Expanded(
-            child: ListView(
-              children: [
-                CustomTextField(
-                  controller: titleController,
-                  hintText: 'Title',
-                  isTitle: true,
-                  error: titleError,
-                ),
-                CustomTextField(
-                  controller: descriptionController,
-                  hintText: 'description',
-                ),
-              ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            CustomAppBar(
+              back: true,
+              title: note?.updated != null
+                  ? DateFormat('dd MMMM yyyy - HH:mm').format(note!.updated)
+                  : 'Add Note',
+              svgIcon: note != null ? 'trash.svg' : null,
+              svgIconOnTapFunction: note != null
+                  ? () {
+                      note!.delete();
+                      Navigator.pop(context);
+                    }
+                  : null,
             ),
-          ),
-          errorText.isNotEmpty
-              ? Center(
-                  child: Container(
+            Expanded(
+              child: ListView(
+                children: [
+                  CustomTextField(
+                    controller: titleController,
+                    hintText: 'Title',
+                    isTitle: true,
+                    error: titleError,
+                    // onChanged: (_) => setState(() {
+                    //   titleError = false;
+                    //   errorText = '';
+                    // }),
+                    focusNode: titleFocusNode,
+                  ),
+                  CustomTextField(
+                    controller: descriptionController,
+                    hintText: 'Description',
+                    focusNode: descriptionFocusNode,
+                  ),
+                ],
+              ),
+            ),
+            errorText.isNotEmpty
+                ? Center(
+                    child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 5),
                       child: Text(
                         errorText,
                         textAlign: TextAlign.center,
                         style: theme.textTheme.titleMedium!
                             .copyWith(color: Colors.red),
-                      )),
-                )
-              : const SizedBox(height: 5),
-          Container(
-            height: 80,
-            padding: const EdgeInsets.only(left: 20, bottom: 20, top: 20),
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                CategoryTile(
+                      ),
+                    ),
+                  )
+                : const SizedBox(height: 5),
+            Container(
+              height: 80,
+              padding: const EdgeInsets.only(left: 20, bottom: 20, top: 20),
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  CategoryTile(
                     theme: theme,
                     title: colorNames[color] ?? 'Color',
                     color: color ?? theme.scaffoldBackgroundColor,
@@ -139,8 +170,9 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                           color = updatedColor;
                         });
                       }
-                    }),
-                CategoryTile(
+                    },
+                  ),
+                  CategoryTile(
                     theme: theme,
                     title: category?.title ?? 'Category',
                     color: categoryError
@@ -154,20 +186,29 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                           category = updateCategory;
                         });
                       }
-                    }),
-                ElevatedButton(
-                    onPressed: submitNote,
+                    },
+                  ),
+                  ElevatedButton(
+                    onPressed: () => submitNote(),
                     style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 35)),
-                    child: Text('Save',
-                        style: theme.textTheme.labelLarge
-                            ?.copyWith(color: theme.scaffoldBackgroundColor)))
-              ],
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 35,
+                      ),
+                    ),
+                    child: Text(
+                      'Save',
+                      style: theme.textTheme.labelLarge!.copyWith(
+                        color: theme.scaffoldBackgroundColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          )
-        ],
+          ],
+        ),
       ),
-    ));
+    );
   }
 }

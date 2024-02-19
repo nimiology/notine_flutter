@@ -101,12 +101,12 @@ class Note {
     Color? color,
     required Category category,
   }) async {
-    final instanceMap = {
+    final Map<String, Object> instanceMap = {
       'title': title,
       'created': created.millisecondsSinceEpoch,
       'updated': updated.millisecondsSinceEpoch,
       'category_title': category.title,
-      'color': colorNames[color] ?? getRandomColor(),
+      'color': colorNames[color] ?? colorNames[getRandomColor()]!,
     };
     if (content != null) {
       instanceMap['content'] = content;

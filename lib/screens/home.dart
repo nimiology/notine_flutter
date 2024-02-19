@@ -25,7 +25,8 @@ class _HomeScreenState extends State<HomeScreen> {
     getNotes();
   }
 
-  void getNotes() async {
+  Future<void> getNotes() async {
+    await Future.delayed(const Duration(seconds: 1));
     categories = await Note.getNotesByCategory();
     setState(() {});
   }
@@ -33,33 +34,39 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: ListView(
-      children: [
-        HomeAppbar(
-          onTap: () async{
-            await Navigator.pushNamed(context, AddNoteScreen.routeName);
-            getNotes();
-          },
-          screenIcon: const Icon(Icons.add),
-        ),
-        if (categories.isEmpty)Center(
-          child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              child: Text(
-                'No Notes yet!',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium!
-                    .copyWith(color: Colors.red),
-              )),
-        ),
-        ...categories.keys.map((key) {
-          return CategoryLine(
-            category: Category(title: key),
-            notes: categories[key]!,
-            homeScreenSetState: getNotes,
-          );
-        }).toList()
-      ],
+        body: RefreshIndicator(
+      onRefresh: getNotes,
+      child: ListView(
+        children: [
+          HomeAppbar(
+            onTap: () async {
+              await Navigator.pushNamed(context, AddNoteScreen.routeName);
+              getNotes();
+            },
+            screenIcon: const Icon(Icons.add),
+          ),
+          if (categories.isEmpty)
+            Center(
+              child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  child: Text(
+                    'No Notes yet!',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium!
+                        .copyWith(color: Colors.red),
+                  )),
+            ),
+          ...categories.keys.map((key) {
+            return CategoryLine(
+              category: Category(title: key),
+              notes: categories[key]!,
+              homeScreenSetState: getNotes,
+            );
+          }).toList()
+        ],
+      ),
     ));
   }
 }
