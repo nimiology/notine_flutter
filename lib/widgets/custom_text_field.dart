@@ -9,6 +9,7 @@ class CustomTextField extends StatelessWidget {
   final bool? enabled;
   final bool error;
   final bool isTitle;
+  final bool multiLine;
 
   CustomTextField(
       {Key? key,
@@ -17,7 +18,8 @@ class CustomTextField extends StatelessWidget {
       this.svg,
       this.enabled,
       this.error = false,
-      this.isTitle = false})
+      this.isTitle = false,
+      this.multiLine = true})
       : super(key: key);
 
   @override
@@ -41,7 +43,8 @@ class CustomTextField extends StatelessWidget {
               enabled: enabled,
               style: textTheme,
               keyboardType: TextInputType.multiline,
-              maxLines: null,
+              maxLines: multiLine ? null : 1,
+              maxLength: multiLine ? null : 30,
               decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: hintText,

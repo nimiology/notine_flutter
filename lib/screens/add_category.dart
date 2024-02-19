@@ -45,6 +45,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                 controller: titleController,
                 hintText: 'Title',
                 error: titleError,
+                multiLine: false,
               ),
             ]),
           ),
