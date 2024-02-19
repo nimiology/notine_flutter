@@ -106,10 +106,8 @@ class Note {
       'created': created.millisecondsSinceEpoch,
       'updated': updated.millisecondsSinceEpoch,
       'category_title': category.title,
+      'color': colorNames[color] ?? getRandomColor(),
     };
-    if (color != null) {
-      instanceMap['color'] = colorNames[color]!;
-    }
     if (content != null) {
       instanceMap['content'] = content;
     }
