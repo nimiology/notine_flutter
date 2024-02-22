@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -8,7 +7,7 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:http/http.dart' as http;
 
 import '../main.dart';
-
+import '../screens/login.dart';
 
 const storage = FlutterSecureStorage();
 
@@ -28,7 +27,7 @@ class AuthToken {
         if (refreshToken != null) {
           try {
             http.Response response = await http.post(
-                Uri.parse('https://api.hallery.art/auth/jwt/refresh/'),
+                Uri.parse('https://notine.liara.run/auth/jwt/refresh/'),
                 body: {'refresh': refreshToken});
             final tokensMap = json.decode(response.body);
             if (response.statusCode == 200) {
@@ -102,8 +101,6 @@ class AuthToken {
   }
 
   static logout() async {
-    String? JWTtoken = await AuthToken.accessToken();
-
     await AuthToken.deleteAccessToken();
     await AuthToken.deleteRefreshToken();
     MyApp.navigatorKey.currentState?.pushNamedAndRemoveUntil(

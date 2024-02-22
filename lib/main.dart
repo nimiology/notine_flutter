@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:notine_flutter/screens/home.dart';
+import 'package:notine_flutter/screens/signup.dart';
 
 import 'screens/add_category.dart';
 import 'screens/add_note.dart';
 import 'screens/category_notes.dart';
 import 'screens/choose_category.dart';
 import 'screens/choose_color.dart';
+import 'screens/email_sent.dart';
+import 'screens/forgot_password.dart';
+import 'screens/login.dart';
 import 'theme/theme_constants.dart';
 import 'theme/theme_manager.dart';
 
@@ -24,12 +28,16 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle( SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: lightTheme.scaffoldBackgroundColor,
-      statusBarIconBrightness: lightTheme.brightness == Brightness.light ? Brightness.dark : Brightness.light,
+      statusBarIconBrightness: lightTheme.brightness == Brightness.light
+          ? Brightness.dark
+          : Brightness.light,
       systemNavigationBarColor: lightTheme.scaffoldBackgroundColor,
-      systemNavigationBarIconBrightness: lightTheme.brightness == Brightness.light ? Brightness.dark : Brightness.light,
-
+      systemNavigationBarIconBrightness:
+          lightTheme.brightness == Brightness.light
+              ? Brightness.dark
+              : Brightness.light,
     ));
     return MaterialApp(
       title: 'Flutter Demo',
@@ -41,10 +49,14 @@ class MyApp extends StatelessWidget {
       routes: {
         HomeScreen.routeName: (ctx) => const HomeScreen(),
         CategoryNote.routeName: (ctx) => CategoryNote(),
-        AddNoteScreen.routeName: (ctx) =>  AddNoteScreen(),
-        ChooseCategoryScreen.routeName: (ctx) =>  const ChooseCategoryScreen(),
-        AddCategoryScreen.routeName: (ctx) =>  AddCategoryScreen(),
-        ChooseColorScreen.routeName: (ctx) =>  const ChooseColorScreen(),
+        AddNoteScreen.routeName: (ctx) => AddNoteScreen(),
+        ChooseCategoryScreen.routeName: (ctx) => const ChooseCategoryScreen(),
+        AddCategoryScreen.routeName: (ctx) => AddCategoryScreen(),
+        ChooseColorScreen.routeName: (ctx) => const ChooseColorScreen(),
+        SignUpScreen.routeName: (ctx) => const SignUpScreen(),
+        LoginScreen.routeName: (ctx) => const LoginScreen(),
+        ForgotPasswordScreen.routeName: (ctx) => const ForgotPasswordScreen(),
+        EmailSentScreen.routeName: (ctx) => const EmailSentScreen(),
       },
     );
   }

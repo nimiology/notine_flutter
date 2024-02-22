@@ -12,6 +12,7 @@ class CustomTextField extends StatelessWidget {
   final bool multiLine;
   final ValueChanged<String>? onChanged;
   final FocusNode? focusNode;
+  final bool obscureText;
 
   CustomTextField(
       {Key? key,
@@ -23,7 +24,8 @@ class CustomTextField extends StatelessWidget {
       this.enabled,
       this.error = false,
       this.isTitle = false,
-      this.multiLine = true})
+      this.multiLine = true,
+      this.obscureText = false})
       : super(key: key);
 
   @override
@@ -48,9 +50,14 @@ class CustomTextField extends StatelessWidget {
               style: textTheme,
               keyboardType: TextInputType.multiline,
               maxLines: multiLine ? null : 1,
-              maxLength: multiLine ? null : 30,
+              maxLength: multiLine
+                  ? obscureText
+                      ? 1
+                      : null
+                  : 30,
               onChanged: onChanged,
               focusNode: focusNode,
+              obscureText: obscureText,
               decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: hintText,
