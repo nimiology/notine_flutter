@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/category.dart';
 import '../widgets/appbar.dart';
@@ -18,15 +19,17 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
   bool titleError = false;
   String errorText = '';
 
-  void addCategory (){
-    if (titleController.text.isEmpty){
+  void addCategory() {
+    if (titleController.text.isEmpty) {
       return setState(() {
         errorText = 'Title cannot be empty';
         titleError = true;
       });
     }
     Navigator.pop(
-        context, Category.addCategory(titleController.text));
+        context,
+        Provider.of<CategoryProvider>(context, listen: false)
+            .addCategory(titleController.text));
   }
 
   @override
@@ -57,7 +60,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                         errorText,
                         textAlign: TextAlign.center,
                         style: theme.textTheme.titleMedium!
-                            .copyWith(color: Colors.red),
+                            .copyWith(color: theme.colorScheme.error),
                       )),
                 )
               : const SizedBox(height: 5),

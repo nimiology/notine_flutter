@@ -22,7 +22,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // getNotes();
   }
 
   Map<String, List<Note>> getNotesByCategory(List<Note> noteList) {
@@ -48,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    getNotes();
 
     return Scaffold(
         body: Consumer<NoteProvider>(

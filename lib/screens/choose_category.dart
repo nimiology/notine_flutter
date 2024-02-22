@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/category.dart';
 import '../widgets/appbar.dart';
@@ -15,64 +16,54 @@ class ChooseCategoryScreen extends StatefulWidget {
 }
 
 class _ChooseCategoryScreenState extends State<ChooseCategoryScreen> {
-  List<Category> categories = [];
-
   @override
-  void initState() {
-    super.initState();
-    getCategories();
-  }
-
-  void getCategories() async {
-    categories = await Category.getCategory();
-    setState(() {});
-  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    Provider.of<CategoryProvider>(context, listen: false).fetchCategories();
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CustomAppBar(
-              back: true,
-              title: 'Choose Category',
-              svgIcon: 'plus-solid.svg',
-              svgIconOnTapFunction: () async {
-                final category = await Navigator.pushNamed(
-                    context, AddCategoryScreen.routeName) as Category?;
-                if (category != null) {
-                  getCategories();
-                }
-              },
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Wrap(
-                      spacing: 5,
-                      runSpacing: 15,
-                      alignment: WrapAlignment.start,
-                      children: categories
-                          .map((element) => CategoryTile(
-                              theme: theme,
-                              title: element.title,
-                              color: theme.scaffoldBackgroundColor,
-                              onTap: () {
-                                Navigator.pop(
-                                  context,
-                                  element,
-                                );
-                              }))
-                          .toList()),
+      body: Consumer<CategoryProvider>(
+        builder: (context, noteProvider, child) {
+          return SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomAppBar(
+                  back: true,
+                  title: 'Choose Category',
+                  svgIcon: 'plus-solid.svg',
+                  svgIconOnTapFunction: () {
+                    Navigator.pushNamed(context, AddCategoryScreen.routeName);
+                  },
                 ),
-              ),
-            )
-          ],
-        ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Wrap(
+                          spacing: 5,
+                          runSpacing: 15,
+                          alignment: WrapAlignment.start,
+                          children: noteProvider.categories
+                              .map((element) => CategoryTile(
+                                  theme: theme,
+                                  title: element.title,
+                                  color: theme.scaffoldBackgroundColor,
+                                  onTap: () {
+                                    Navigator.pop(
+                                      context,
+                                      element,
+                                    );
+                                  }))
+                              .toList()),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          );
+        },
       ),
     );
   }

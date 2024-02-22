@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../helper/db_helpers.dart';
-import 'note.dart';
 
 class CategoryProvider extends ChangeNotifier {
   List<Category> _categories = [];

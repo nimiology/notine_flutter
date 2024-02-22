@@ -70,6 +70,8 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       return setState(() {
         titleError = true;
         errorText = 'Title cannot be empty';
+        saving = false;
+
       });
     }
 
@@ -77,6 +79,8 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       return setState(() {
         categoryError = true;
         errorText = 'Category cannot be empty';
+        saving = false;
+
       });
     }
 
