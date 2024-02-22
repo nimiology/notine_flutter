@@ -6,10 +6,9 @@ import '../../screens/add_note.dart';
 
 class NotePreview extends StatefulWidget {
   Note note;
-  final Function() homeScreenSetState;
 
   NotePreview(
-      {super.key, required this.note, required this.homeScreenSetState});
+      {super.key, required this.note});
 
   @override
   State<NotePreview> createState() => _NotePreviewState();
@@ -54,7 +53,6 @@ class _NotePreviewState extends State<NotePreview> {
                 widget.note = updatedNote;
               }
             });
-            widget.homeScreenSetState();
           },
           child: Container(
             margin: const EdgeInsets.all(15),

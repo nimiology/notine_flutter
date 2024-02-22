@@ -38,6 +38,47 @@ final Map<Color, String> colorNames = {
   Colors.redAccent: 'Red Accent',
 };
 
+class NoteProvider extends ChangeNotifier {
+  List<Note> _notes = [];
+
+  List<Note> get notes => _notes;
+
+  Future<void> fetchNotes() async {
+    _notes = await Note.getNotes();
+    notifyListeners();
+  }
+
+  Future<void> addNote({
+    int? noteId,
+    required String title,
+    String? content,
+    required DateTime created,
+    required DateTime updated,
+    Color? color,
+    required Category category,
+  }) async {
+    final note = await Note.addNote(
+      noteId: noteId,
+      title: title,
+      content: content,
+      created: created,
+      updated: updated,
+      color: color,
+      category: category,
+    );
+    _notes.add(note);
+    notifyListeners();
+  }
+
+  Future<void> deleteNote(Note note) async {
+    note.delete();
+    _notes.remove(note);
+    notifyListeners();
+  }
+
+
+}
+
 class Note {
   final int id;
   String title;
@@ -47,14 +88,15 @@ class Note {
   Color color;
   Category category;
 
-  Note(
-      {required this.id,
-      required this.title,
-      this.content,
-      required this.created,
-      required this.updated,
-      required this.color,
-      required this.category});
+  Note({
+    required this.id,
+    required this.title,
+    this.content,
+    required this.created,
+    required this.updated,
+    required this.color,
+    required this.category,
+  });
 
   static Color getRandomColor() {
     final randomColor =
@@ -118,24 +160,6 @@ class Note {
     instanceMap['id'] = id;
     final instance = Note.noteFromMap(instanceMap);
     return instance;
-  }
-
-  static Future<Map<String, List<Note>>> getNotesByCategory() async {
-    Map<String, List<Note>> notesByCategory = {};
-
-    final noteList = await getNotes();
-
-    for (Note note in noteList) {
-      String category = note.category.title;
-
-      if (!notesByCategory.containsKey(category)) {
-        notesByCategory[category] = [];
-      }
-
-      notesByCategory[category]!.add(note);
-    }
-
-    return notesByCategory;
   }
 
   void delete() async {

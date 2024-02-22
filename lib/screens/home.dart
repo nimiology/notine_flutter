@@ -22,51 +22,77 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    getNotes();
+    // getNotes();
+  }
+
+  Map<String, List<Note>> getNotesByCategory(List<Note> noteList) {
+    Map<String, List<Note>> notesByCategory = {};
+
+    for (Note note in noteList) {
+      String category = note.category.title;
+
+      if (!notesByCategory.containsKey(category)) {
+        notesByCategory[category] = [];
+      }
+
+      notesByCategory[category]!.add(note);
+    }
+
+    return notesByCategory;
   }
 
   Future<void> getNotes() async {
-    await Future.delayed(const Duration(seconds: 1));
-    categories = await Note.getNotesByCategory();
-    setState(() {});
+    await Provider.of<NoteProvider>(context, listen: false).fetchNotes();
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-        body: RefreshIndicator(
-      onRefresh: getNotes,
-      child: ListView(
-        children: [
-          HomeAppbar(
-            onTap: () async {
-              await Navigator.pushNamed(context, AddNoteScreen.routeName);
-              getNotes();
-            },
-            screenIcon: const Icon(Icons.add),
-          ),
-          if (categories.isEmpty)
-            Center(
-              child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: Text(
-                    'No Notes yet!',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium!
-                        .copyWith(color: Colors.red),
-                  )),
-            ),
-          ...categories.keys.map((key) {
-            return CategoryLine(
-              category: Category(title: key),
-              notes: categories[key]!,
-              homeScreenSetState: getNotes,
+        body: Consumer<NoteProvider>(
+          builder: (context, noteProvider, _) {
+            final categories = getNotesByCategory(noteProvider.notes);
+            return RefreshIndicator(
+              onRefresh: getNotes,
+              child: ListView(
+                children: [
+                  HomeAppbar(
+                    onTap: () {},
+                    screenIcon: const Icon(Icons.add),
+                  ),
+                  if (categories.isEmpty)
+                    Center(
+                      child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 5),
+                          child: Text(
+                            'No Notes yet!',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(color: theme.colorScheme.error),
+                          )),
+                    ),
+                  ...categories.keys.map((key) {
+                    return CategoryLine(
+                      category: Category(title: key),
+                      notes: categories[key]!,
+                      homeScreenSetState: getNotes,
+                    );
+                  }).toList()
+                ],
+              ),
             );
-          }).toList()
-        ],
-      ),
-    ));
+          },
+        ),
+        floatingActionButton: FloatingActionButton(
+            onPressed: () async {
+              await Navigator.pushNamed(context, AddNoteScreen.routeName);
+            },
+            child: Icon(
+              Icons.add,
+              color: theme.scaffoldBackgroundColor,
+            )));
   }
 }

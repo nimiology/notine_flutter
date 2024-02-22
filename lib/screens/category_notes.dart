@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/category.dart';
 import '../models/note.dart';
@@ -18,12 +19,15 @@ class _CategoryNoteState extends State<CategoryNote> {
   late Category category;
   List<Note> notes = [];
 
-  Future<void> getNotes() async {
-    await Future.delayed(const Duration(seconds: 1));
-    notes = await category.getCategoryNote();
-
-    setState(() {});
+  Future<void> getCategoryNote() async {
+    final noteList = Provider.of<NoteProvider>(context, listen: false).notes;
+    for (Note note in noteList) {
+      if (note.category.title == category.title) {
+        notes.add(note);
+      }
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -32,13 +36,13 @@ class _CategoryNoteState extends State<CategoryNote> {
     if (routeArgs != null) {
       category = routeArgs['category'];
       if (notes.isEmpty) {
-        getNotes();
+        getCategoryNote();
       }
     }
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: getNotes,
+          onRefresh: getCategoryNote,
           child: Column(
             children: [
               CustomAppBar(
@@ -54,7 +58,6 @@ class _CategoryNoteState extends State<CategoryNote> {
                     children: notes
                         .map((e) => NotePreview(
                               note: e,
-                              homeScreenSetState: getNotes,
                             ))
                         .toList()),
               ),

@@ -53,7 +53,7 @@ class CategoryLine extends StatelessWidget {
               children: notes.reversed
                   .take(3)
                   .map((e) => NotePreview(
-                      note: e, homeScreenSetState: homeScreenSetState))
+                      note: e,))
                   .toList()),
         )
       ],

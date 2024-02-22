@@ -1,36 +1,40 @@
+import 'package:flutter/material.dart';
 import '../helper/db_helpers.dart';
 import 'note.dart';
+
+class CategoryProvider extends ChangeNotifier {
+  List<Category> _categories = [];
+
+  List<Category> get categories => _categories;
+
+  Future<void> fetchCategories() async {
+    _categories = await Category.getCategory();
+    notifyListeners();
+  }
+
+  Future<void> addCategory(String title) async {
+    final category = Category.addCategory(title);
+    _categories.add(category);
+    notifyListeners();
+  }
+}
 
 class Category {
   final String title;
 
   Category({required this.title});
 
-  Future<List<Note>> getCategoryNote() async {
-    List<Note> notes = [];
-
-    final noteList = await Note.getNotes();
-    for (Note note in noteList) {
-      String category = note.category.title;
-      if (category == title) {
-        notes.add(note);
-      }
-    }
-
-    return notes;
-  }
-
-  static categoryFromMap(Map map) {
+  static Category categoryFromMap(Map map) {
     return Category(title: map['title']);
   }
 
   static Future<List<Category>> getCategory() async {
-    List<Category> _itemss = [];
+    List<Category> _items = [];
     List categoryList = await DBHelper.getData('category');
     for (Map categoryMap in categoryList) {
-      _itemss.add(Category.categoryFromMap(categoryMap));
+      _items.add(Category.categoryFromMap(categoryMap));
     }
-    return _itemss;
+    return _items;
   }
 
   static Category addCategory(String title) {

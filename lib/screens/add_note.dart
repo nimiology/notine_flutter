@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../models/category.dart';
 import '../models/note.dart';
@@ -31,6 +32,8 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
   bool categoryError = false;
   bool titleError = false;
 
+  bool saving = false;
+
   Color? color;
   Category? category;
 
@@ -45,13 +48,17 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
 
   void _autoSave() {
     if (!titleFocusNode.hasFocus && !descriptionFocusNode.hasFocus) {
-      if (titleController.text.isNotEmpty && category != null) {
+      if (titleController.text.isNotEmpty && category != null && note != null) {
         submitNote(autoSave: true);
       }
     }
   }
 
   void submitNote({bool autoSave = false}) async {
+    if (saving) {
+      return ;
+    }
+    saving = true;
     final title = titleController.text;
     final content = descriptionController.text;
     final created = note?.created ?? DateTime.now();
@@ -73,18 +80,20 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       });
     }
 
-    final updatedNote = Note.addNote(
-        noteId: note?.id,
-        title: title,
-        created: created,
-        updated: updated,
-        category: category!,
-        content: content,
-        color: color);
+    final updatedNote = Provider.of<NoteProvider>(context, listen: false)
+        .addNote(
+            noteId: note?.id,
+            title: title,
+            created: created,
+            updated: updated,
+            category: category!,
+            content: content,
+            color: color);
 
     if (!autoSave) {
       Navigator.of(context).pop(updatedNote);
     }
+    saving = false;
   }
 
   @override

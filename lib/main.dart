@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:notine_flutter/screens/home.dart';
 import 'package:notine_flutter/screens/signup.dart';
+import 'package:provider/provider.dart';
 
+import 'models/category.dart';
+import 'models/note.dart';
 import 'screens/add_category.dart';
 import 'screens/add_note.dart';
 import 'screens/category_notes.dart';
@@ -39,25 +42,35 @@ class MyApp extends StatelessWidget {
               ? Brightness.dark
               : Brightness.light,
     ));
-    return MaterialApp(
-      title: 'Flutter Demo',
-      navigatorKey: navigatorKey,
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      themeMode: themeManager.themeMode,
-      initialRoute: HomeScreen.routeName,
-      routes: {
-        HomeScreen.routeName: (ctx) => const HomeScreen(),
-        CategoryNote.routeName: (ctx) => CategoryNote(),
-        AddNoteScreen.routeName: (ctx) => AddNoteScreen(),
-        ChooseCategoryScreen.routeName: (ctx) => const ChooseCategoryScreen(),
-        AddCategoryScreen.routeName: (ctx) => AddCategoryScreen(),
-        ChooseColorScreen.routeName: (ctx) => const ChooseColorScreen(),
-        SignUpScreen.routeName: (ctx) => const SignUpScreen(),
-        LoginScreen.routeName: (ctx) => const LoginScreen(),
-        ForgotPasswordScreen.routeName: (ctx) => const ForgotPasswordScreen(),
-        EmailSentScreen.routeName: (ctx) => const EmailSentScreen(),
-      },
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(
+            value: CategoryProvider()
+        ),
+        ChangeNotifierProvider.value(
+            value: NoteProvider()
+        )
+      ],
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        navigatorKey: navigatorKey,
+        theme: lightTheme,
+        darkTheme: darkTheme,
+        themeMode: themeManager.themeMode,
+        initialRoute: HomeScreen.routeName,
+        routes: {
+          HomeScreen.routeName: (ctx) => const HomeScreen(),
+          CategoryNote.routeName: (ctx) => CategoryNote(),
+          AddNoteScreen.routeName: (ctx) => AddNoteScreen(),
+          ChooseCategoryScreen.routeName: (ctx) => const ChooseCategoryScreen(),
+          AddCategoryScreen.routeName: (ctx) => AddCategoryScreen(),
+          ChooseColorScreen.routeName: (ctx) => const ChooseColorScreen(),
+          SignUpScreen.routeName: (ctx) => const SignUpScreen(),
+          LoginScreen.routeName: (ctx) => const LoginScreen(),
+          ForgotPasswordScreen.routeName: (ctx) => const ForgotPasswordScreen(),
+          EmailSentScreen.routeName: (ctx) => const EmailSentScreen(),
+        },
+      ),
     );
   }
 }
