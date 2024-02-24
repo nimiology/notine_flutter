@@ -19,7 +19,7 @@ class CategoryTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 5),
+        margin: const EdgeInsets.symmetric(horizontal: 5),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),

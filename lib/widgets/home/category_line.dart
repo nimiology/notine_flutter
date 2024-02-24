@@ -27,9 +27,12 @@ class CategoryLine extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                category.title,
-                style: theme.textTheme.titleMedium,
+              Flexible(
+                child: Text(
+                  category.title*2,
+                  style: theme.textTheme.titleMedium,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               GestureDetector(
                 onTap: () {
