@@ -39,22 +39,8 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
 
   Note? note;
 
-  @override
-  void initState() {
-    super.initState();
-    titleFocusNode.addListener(_autoSave);
-    descriptionFocusNode.addListener(_autoSave);
-  }
 
-  void _autoSave() {
-    if (!titleFocusNode.hasFocus && !descriptionFocusNode.hasFocus) {
-      if (titleController.text.isNotEmpty && category != null && note != null) {
-        submitNote(autoSave: true);
-      }
-    }
-  }
-
-  void submitNote({bool autoSave = false}) async {
+  void submitNote() async {
     if (saving) {
       return ;
     }
@@ -66,7 +52,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
     final color = this.color;
     final category = this.category;
 
-    if (!autoSave && title.isEmpty) {
+    if (title.isEmpty) {
       return setState(() {
         titleError = true;
         errorText = 'Title cannot be empty';
@@ -75,7 +61,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
       });
     }
 
-    if (!autoSave && category == null) {
+    if ( category == null) {
       return setState(() {
         categoryError = true;
         errorText = 'Category cannot be empty';
@@ -90,13 +76,11 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
             title: title,
             created: created,
             updated: updated,
-            category: category!,
+            category: category,
             content: content,
             color: color);
 
-    if (!autoSave) {
-      Navigator.of(context).pop(updatedNote);
-    }
+    Navigator.of(context).pop(updatedNote);
     saving = false;
   }
 
@@ -125,10 +109,17 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
               svgIcon: note != null ? 'trash.svg' : null,
               svgIconOnTapFunction: note != null
                   ? () {
-                      note!.delete();
+                      Provider.of<NoteProvider>(context, listen: false).deleteNote(note!);
                       Navigator.pop(context);
                     }
                   : null,
+              backFunction: (){
+                if (note != null) {
+                  submitNote();
+                }else {
+                  Navigator.pop(context);
+                }
+              },
             ),
             Expanded(
               child: ListView(

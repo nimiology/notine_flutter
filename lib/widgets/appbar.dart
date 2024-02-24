@@ -7,6 +7,7 @@ class CustomAppBar extends StatelessWidget {
   final String title;
   final String? svgIcon;
   final VoidCallback? svgIconOnTapFunction;
+  final VoidCallback? backFunction;
   final double horizontalPadding;
 
   const CustomAppBar({
@@ -17,6 +18,7 @@ class CustomAppBar extends StatelessWidget {
     this.svgIcon,
     this.svgIconOnTapFunction,
     this.horizontalPadding = 20,
+    this.backFunction,
   }) : super(key: key);
 
   @override
@@ -31,9 +33,10 @@ class CustomAppBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               GestureDetector(
-                onTap: () {
-                  Navigator.pop(context);
-                },
+                onTap: backFunction ??
+                    () {
+                      Navigator.pop(context);
+                    },
                 child: SizedBox(
                   width: 20,
                   height: 20,

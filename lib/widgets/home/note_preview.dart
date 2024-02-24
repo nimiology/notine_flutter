@@ -7,8 +7,7 @@ import '../../screens/add_note.dart';
 class NotePreview extends StatefulWidget {
   Note note;
 
-  NotePreview(
-      {super.key, required this.note});
+  NotePreview({super.key, required this.note});
 
   @override
   State<NotePreview> createState() => _NotePreviewState();
@@ -42,17 +41,12 @@ class _NotePreviewState extends State<NotePreview> {
         final maxWidth = constraints.maxWidth;
 
         return GestureDetector(
-          onTap: () async {
-            final updatedNote = await Navigator.pushNamed(
+          onTap: () {
+            Navigator.pushNamed(
               context,
               AddNoteScreen.routeName,
               arguments: {'note': widget.note},
-            ) as Note?;
-            setState(() {
-              if (updatedNote != null) {
-                widget.note = updatedNote;
-              }
-            });
+            );
           },
           child: Container(
             margin: const EdgeInsets.all(15),

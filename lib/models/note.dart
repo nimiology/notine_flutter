@@ -66,7 +66,12 @@ class NoteProvider extends ChangeNotifier {
       color: color,
       category: category,
     );
-    _notes.add(note);
+    if (noteId != null) {
+      final index = _notes.indexWhere((element) => element.id == noteId);
+      _notes[index] = note;
+    } else {
+      _notes.add(note);
+    }
     notifyListeners();
   }
 
@@ -75,8 +80,6 @@ class NoteProvider extends ChangeNotifier {
     _notes.remove(note);
     notifyListeners();
   }
-
-
 }
 
 class Note {
