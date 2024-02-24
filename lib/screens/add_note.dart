@@ -151,7 +151,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
                         errorText,
                         textAlign: TextAlign.center,
                         style: theme.textTheme.titleMedium!
-                            .copyWith(color: Colors.red),
+                            .copyWith(color: theme.colorScheme.error),
                       ),
                     ),
                   )

@@ -87,8 +87,9 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ),
         floatingActionButton: FloatingActionButton(
-            onPressed: () async {
-              await Navigator.pushNamed(context, AddNoteScreen.routeName);
+            onPressed: ()  {
+              print('asdf');
+               Navigator.pushNamed(context, AddNoteScreen.routeName);
             },
             child: Icon(
               Icons.add,
