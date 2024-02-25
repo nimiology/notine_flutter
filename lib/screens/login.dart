@@ -9,7 +9,6 @@ import '../helper/auth_jwt_token_helper.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/login_button.dart';
 import 'forgot_password.dart';
-import 'home.dart';
 import 'signup.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -61,8 +60,7 @@ class _LoginScreenState extends State<LoginScreen>
               {
                 AuthToken.saveFromMap(tokensMap);
                 if (context.mounted) {
-                  return Navigator.popAndPushNamed(
-                      context, HomeScreen.routeName);
+                  return Navigator.pop(context);
                 }
                 break;
               }

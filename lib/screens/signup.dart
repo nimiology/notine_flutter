@@ -26,13 +26,11 @@ class _SignUpScreenState extends State<SignUpScreen>
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController inviteCodeController = TextEditingController();
   bool sending = false;
   String errorText = '';
   bool usernameError = false;
   bool passwordError = false;
   bool emailError = false;
-  bool inviteCodeError = false;
 
   void changeSendingState() {
     setState(() {
@@ -46,19 +44,16 @@ class _SignUpScreenState extends State<SignUpScreen>
       usernameError = false;
       passwordError = false;
       emailError = false;
-      inviteCodeError = false;
 
       changeSendingState();
 
       final username = usernameController.text;
       final password = passwordController.text;
       final email = emailController.text;
-      final inviteCode = inviteCodeController.text;
 
       if (username.isNotEmpty &&
           password.isNotEmpty &&
-          email.isNotEmpty &&
-          inviteCode.isNotEmpty) {
+          email.isNotEmpty ) {
         if (email.isValidEmail()) {
           try {
             http.Response response = await http.post(
@@ -67,7 +62,6 @@ class _SignUpScreenState extends State<SignUpScreen>
                   'username': username,
                   'email': email,
                   'password': password,
-                  'invited_by': inviteCode
                 });
             var tokensMap = json.decode(response.body);
             switch (response.statusCode) {
@@ -157,10 +151,6 @@ class _SignUpScreenState extends State<SignUpScreen>
         emailError = true;
         errorText = "Fill the forms.";
       }
-      if (inviteCode.isEmpty) {
-        inviteCodeError = true;
-        errorText = "Fill the forms.";
-      }
 
       changeSendingState();
     }
@@ -183,7 +173,7 @@ class _SignUpScreenState extends State<SignUpScreen>
             Container(
               margin: const EdgeInsets.only(left: 25, right: 100),
               alignment: Alignment.centerLeft,
-              child: Text('Dive into the vibrant world of Hallery.',
+              child: Text('Sync your notes',
                   style: theme.textTheme.titleSmall),
             ),
             const SizedBox(
@@ -220,7 +210,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                           errorText,
                           textAlign: TextAlign.center,
                           style: theme.textTheme.titleMedium!
-                              .copyWith(color: Colors.red),
+                              .copyWith(color: theme.colorScheme.error),
                         )),
                   )
                 : const SizedBox(height: 30),

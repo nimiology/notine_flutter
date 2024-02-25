@@ -17,7 +17,14 @@ class LoginButton extends StatelessWidget {
       margin: const EdgeInsets.all(15),
       child: ElevatedButton(
         onPressed: onPressed,
-        child: Text(title),
+        child: loading
+            ? const SizedBox(
+                height: 15,
+                width: 15,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ))
+            : Text(title),
       ),
     );
   }
