@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:sqflite/sqflite.dart' as sql;
 import 'package:path/path.dart' as path;
 import 'package:sqflite/sqlite_api.dart';
@@ -11,6 +13,7 @@ class DBHelper {
         await db.execute('''
           CREATE TABLE note(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            server_id INTEGER NOT NULL,
             title TEXT NOT NULL,
             content TEXT,
             created DATETIME NOT NULL,
@@ -23,15 +26,26 @@ class DBHelper {
 
         await db.execute('''
           CREATE TABLE category(
-            title TEXT PRIMARY KEY
+            title TEXT PRIMARY KEY,
+          )
+        ''');
+
+        await db.execute('''
+          CREATE TABLE sync_queue(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            action TEXT NOT NULL,
+            table_name TEXT NOT NULL,
+            data TEXT,
+            synced INTEGER NOT NULL DEFAULT 0
           )
         ''');
       },
-      version: 5,
+      version: 9,
     );
   }
 
-  static Future<int> insert(String table, Map<String, Object> data) async {
+  static Future<int> insert(String table,
+      Map<String, Object> data) async {
     final db = await DBHelper.database();
     return db.insert(
       table,
@@ -40,7 +54,8 @@ class DBHelper {
     );
   }
 
-  static Future<List<Map<String, dynamic>>> getData(String table) async {
+  static Future<List<Map<String, dynamic>>>
+  getData(String table) async {
     final db = await DBHelper.database();
     return db.query(table);
   }

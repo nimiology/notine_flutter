@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+
+import '../helper/auth_jwt_token_helper.dart';
 import '../helper/db_helpers.dart';
+import 'sync_queue.dart';
 
 class CategoryProvider extends ChangeNotifier {
   List<Category> _categories = [];
@@ -23,6 +28,18 @@ class Category {
 
   Category({required this.title});
 
+  static Future<int> createCategoryAPI(String title)async{
+    final token = await AuthToken.accessToken();
+
+    final response = await http.post(
+        Uri.parse(
+          'https://notine.liara.run/category',
+        ),
+        body: {'title':title},
+        headers: {'Authorization': "Bearer $token"});
+    return response.statusCode;
+  }
+
   static Category categoryFromMap(Map map) {
     return Category(title: map['title']);
   }
@@ -41,6 +58,12 @@ class Category {
     DBHelper.insert('category', {
       'title': instance.title,
     });
+    final syncQueue = SyncQueue.queueSyncRequest(
+        action: 'create',
+        tableName: 'category',
+        data: {
+          'title': title,
+        });
     return instance;
   }
 }

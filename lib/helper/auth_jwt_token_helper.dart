@@ -12,10 +12,6 @@ import '../screens/login.dart';
 const storage = FlutterSecureStorage();
 
 class AuthToken {
-  static pushLoginScreen() {
-    return MyApp.navigatorKey.currentState?.pushNamedAndRemoveUntil(
-        LoginScreen.routeName, (Route<dynamic> route) => false);
-  }
 
   static Future<String?> accessToken() async {
     String? token = await storage.read(key: 'access');
@@ -45,7 +41,6 @@ class AuthToken {
         }
       }
     }
-    return AuthToken.pushLoginScreen();
   }
 
   static Future<String?> refreshToken() async {

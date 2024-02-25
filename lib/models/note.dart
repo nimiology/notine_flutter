@@ -4,86 +4,12 @@ import 'package:flutter/material.dart';
 
 import '../helper/db_helpers.dart';
 import 'category.dart';
-
-final Map<Color, String> colorNames = {
-  Colors.red: 'Red',
-  Colors.blue: 'Blue',
-  Colors.green: 'Green',
-  Colors.yellow: 'Yellow',
-  Colors.orange: 'Orange',
-  Colors.purple: 'Purple',
-  Colors.teal: 'Teal',
-  Colors.pink: 'Pink',
-  Colors.cyan: 'Cyan',
-  Colors.amber: 'Amber',
-  Colors.indigo: 'Indigo',
-  Colors.lime: 'Lime',
-  Colors.brown: 'Brown',
-  Colors.deepPurple: 'Deep Purple',
-  Colors.lightBlue: 'Light Blue',
-  Colors.lightGreen: 'Light Green',
-  Colors.deepOrange: 'Deep Orange',
-  Colors.grey: 'Grey',
-  Colors.blueGrey: 'Blue Grey',
-  Colors.white: 'White',
-  Colors.deepOrangeAccent: 'Deep Orange Accent',
-  Colors.deepPurpleAccent: 'Deep Purple Accent',
-  Colors.greenAccent: 'Green Accent',
-  Colors.amberAccent: 'Amber Accent',
-  Colors.blueAccent: 'Blue Accent',
-  Colors.cyanAccent: 'Cyan Accent',
-  Colors.orangeAccent: 'Orange Accent',
-  Colors.indigoAccent: 'Indigo Accent',
-  Colors.pinkAccent: 'Pink Accent',
-  Colors.redAccent: 'Red Accent',
-};
-
-class NoteProvider extends ChangeNotifier {
-  List<Note> _notes = [];
-
-  List<Note> get notes => _notes;
-
-  Future<void> fetchNotes() async {
-    _notes = await Note.getNotes();
-    notifyListeners();
-  }
-
-  Future<void> addNote({
-    int? noteId,
-    required String title,
-    String? content,
-    required DateTime created,
-    required DateTime updated,
-    Color? color,
-    required Category category,
-  }) async {
-    final note = await Note.addNote(
-      noteId: noteId,
-      title: title,
-      content: content,
-      created: created,
-      updated: updated,
-      color: color,
-      category: category,
-    );
-    if (noteId != null) {
-      final index = _notes.indexWhere((element) => element.id == noteId);
-      _notes[index] = note;
-    } else {
-      _notes.add(note);
-    }
-    notifyListeners();
-  }
-
-  Future<void> deleteNote(Note note) async {
-    note.delete();
-    _notes.remove(note);
-    notifyListeners();
-  }
-}
+import 'note_color_constants.dart';
+import 'sync_queue.dart';
 
 class Note {
   final int id;
+  int? serverId;
   String title;
   String? content;
   final DateTime created;
@@ -93,6 +19,7 @@ class Note {
 
   Note({
     required this.id,
+    this.serverId,
     required this.title,
     this.content,
     required this.created,
@@ -116,9 +43,10 @@ class Note {
     return null;
   }
 
-  static Note noteFromMap(Map map) {
+  static Note noteFromMapDB(Map map) {
     return Note(
       id: map['id'],
+      serverId: map['server_id'],
       title: map['title'],
       content: map['content'],
       created: DateTime.fromMillisecondsSinceEpoch(map['created']),
@@ -132,13 +60,14 @@ class Note {
     List<Note> items = [];
     List categoryList = await DBHelper.getData('note');
     for (Map categoryMap in categoryList) {
-      items.add(Note.noteFromMap(categoryMap));
+      items.add(Note.noteFromMapDB(categoryMap));
     }
     return items;
   }
 
   static Future<Note> addNote({
     int? noteId,
+    int? serverId,
     required String title,
     String? content,
     required DateTime created,
@@ -159,13 +88,93 @@ class Note {
     if (noteId != null) {
       instanceMap['id'] = noteId;
     }
+    if (serverId != null) {
+      instanceMap['server_id'] = serverId;
+    }
     final id = await DBHelper.insert('note', instanceMap);
     instanceMap['id'] = id;
-    final instance = Note.noteFromMap(instanceMap);
-    return instance;
+    final note = Note.noteFromMapDB(instanceMap);
+    if (noteId != id) {
+      final syncQueue = SyncQueue.queueSyncRequest(
+          action: 'create',
+          tableName: 'note',
+          data: {
+            'id': note.id,
+            'title': note.title,
+            'content': note.content,
+            'color': colorNames[note.color],
+            'category_title': note.category.title,
+          });
+    } else {
+      final syncQueue = SyncQueue.queueSyncRequest(
+          action: 'update',
+          tableName: 'note',
+          data: {
+            'id': note.id,
+            'server_id': note.serverId,
+            'title': note.title,
+            'content': note.content,
+            'color': colorNames[note.color],
+            'category_title': note.category.title,
+          });
+    }
+    return note;
   }
 
   void delete() async {
     await DBHelper.delete("note", id);
+    final syncQueue = SyncQueue.queueSyncRequest(
+        action: 'delete',
+        tableName: 'note',
+        data: {
+          'id': id,
+        });
+  }
+}
+
+
+class NoteProvider extends ChangeNotifier {
+  List<Note> _notes = [];
+
+  List<Note> get notes => _notes;
+
+  Future<void> fetchNotes() async {
+    _notes = await Note.getNotes();
+    notifyListeners();
+  }
+
+  Future<void> addNote({
+    int? noteId,
+    int? serverId,
+    required String title,
+    String? content,
+    required DateTime created,
+    required DateTime updated,
+    Color? color,
+    required Category category,
+  }) async {
+    final note = await Note.addNote(
+      noteId: noteId,
+      serverId: serverId,
+      title: title,
+      content: content,
+      created: created,
+      updated: updated,
+      color: color,
+      category: category,
+    );
+    if (noteId != null) {
+      final index = _notes.indexWhere((element) => element.id == noteId);
+      _notes[index] = note;
+    } else {
+      _notes.add(note);
+    }
+    notifyListeners();
+  }
+
+  Future<void> deleteNote(Note note) async {
+    note.delete();
+    _notes.remove(note);
+    notifyListeners();
   }
 }
