@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
+import '../helper/auth_jwt_token_helper.dart';
 import '../models/category.dart';
 import '../models/note.dart';
 import '../widgets/home/category_line.dart';
 import '../widgets/home_appbar.dart';
 import 'add_note.dart';
+import 'login.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
@@ -59,7 +62,26 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   HomeAppbar(
                     onTap: () {},
-                    screenIcon: const Icon(Icons.add),
+                    screenIcon: FutureBuilder<bool>(
+                        future: AuthToken.isLogin(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return snapshot.data!
+                                ? Container()
+                                : GestureDetector(
+                                    onTap: () {
+                                      Navigator.pushNamed(
+                                          context, LoginScreen.routeName);
+                                    },
+                                    child: SvgPicture.asset(
+                                      'assets/svgs/user.svg',
+                                      width: 20,
+                                      color: theme.colorScheme.onBackground,
+                                    ),
+                                  );
+                          }
+                          return Container();
+                        }),
                   ),
                   if (categories.isEmpty)
                     Center(
@@ -87,9 +109,9 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ),
         floatingActionButton: FloatingActionButton(
-            onPressed: ()  {
+            onPressed: () {
               print('asdf');
-               Navigator.pushNamed(context, AddNoteScreen.routeName);
+              Navigator.pushNamed(context, AddNoteScreen.routeName);
             },
             child: Icon(
               Icons.add,
