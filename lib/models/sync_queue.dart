@@ -5,18 +5,19 @@ import 'package:http/http.dart' as http;
 import '../helper/auth_jwt_token_helper.dart';
 import '../helper/db_helpers.dart';
 import 'category.dart';
+import 'note.dart';
 
 class SyncQueue {
   int id;
   String action;
   String tableName;
-  Map<String, dynamic>? data;
+  Map<String, dynamic> data;
   bool synced;
 
   SyncQueue({required this.id,
     required this.action,
     required this.tableName,
-    this.data,
+    required this.data,
     required this.synced});
 
   static SyncQueue syncQueueFromMap(Map<String, dynamic> map) {
@@ -24,7 +25,7 @@ class SyncQueue {
       id: map['id'],
       action: map['action'],
       tableName: map['table_name'],
-      data: map['data'],
+      data: json.decode(map['data']),
       synced: map['synced'] == 1,
     );
   }
@@ -62,8 +63,8 @@ class SyncQueue {
   }
 
   static Future<void> processSyncQueue() async {
-    final token = await AuthToken.accessToken();
-    if (token != null) {
+    final isLogin = await AuthToken.isLogin();
+    if (isLogin) {
       final db = await DBHelper.database();
       final List<Map<String, dynamic>> queuedRequests =
       await db.query('sync_queue', where: 'synced = 0');
@@ -72,15 +73,23 @@ class SyncQueue {
         final syncQueue = SyncQueue.syncQueueFromMap(request);
         if (syncQueue.tableName == 'category') {
           final statusCode = Category.
-              createCategoryAPI(syncQueue.data!['title']);
+              createCategoryAPI(syncQueue.data['title']);
           if (statusCode == 201) {
             syncQueue.sync();
           }
         } else if (syncQueue.tableName == 'note') {
           switch (syncQueue.action) {
             case 'create':
+              final statusCode = Note.createNoteAPI(syncQueue.data);
+              if (statusCode == 201) {
+                syncQueue.sync();
+              }
               break;
             case 'update':
+              final statusCode = Note.createNoteAPI(syncQueue.data);
+              if (statusCode == 200) {
+                syncQueue.sync();
+              }
               break;
             case 'delete':
               break;

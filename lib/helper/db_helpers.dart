@@ -8,12 +8,12 @@ class DBHelper {
   static Future<Database> database() async {
     final dbPath = await sql.getDatabasesPath();
     return sql.openDatabase(
-      path.join(dbPath, 'database.db'),
+      path.join(dbPath, 'databasee.db'),
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE note(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            server_id INTEGER NOT NULL,
+            server_id INTEGER,
             title TEXT NOT NULL,
             content TEXT,
             created DATETIME NOT NULL,
@@ -26,7 +26,7 @@ class DBHelper {
 
         await db.execute('''
           CREATE TABLE category(
-            title TEXT PRIMARY KEY,
+            title TEXT PRIMARY KEY
           )
         ''');
 
@@ -40,7 +40,7 @@ class DBHelper {
           )
         ''');
       },
-      version: 9,
+      version: 4,
     );
   }
 

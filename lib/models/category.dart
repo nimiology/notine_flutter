@@ -33,7 +33,7 @@ class Category {
 
     final response = await http.post(
         Uri.parse(
-          'https://notine.liara.run/category',
+          'https://notine.liara.run/category/',
         ),
         body: {'title':title},
         headers: {'Authorization': "Bearer $token"});
@@ -55,15 +55,14 @@ class Category {
 
   static Category addCategory(String title) {
     final instance = Category(title: title);
-    DBHelper.insert('category', {
+    final instanceMap = {
       'title': instance.title,
-    });
+    };
+    DBHelper.insert('category', instanceMap);
     final syncQueue = SyncQueue.queueSyncRequest(
         action: 'create',
         tableName: 'category',
-        data: {
-          'title': title,
-        });
+        data: instanceMap);
     return instance;
   }
 }
