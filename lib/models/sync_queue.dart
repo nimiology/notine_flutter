@@ -16,11 +16,12 @@ class SyncQueue {
   Map<String, dynamic> data;
   bool synced;
 
-  SyncQueue({required this.id,
-    required this.action,
-    required this.tableName,
-    required this.data,
-    required this.synced});
+  SyncQueue(
+      {required this.id,
+      required this.action,
+      required this.tableName,
+      required this.data,
+      required this.synced});
 
   static SyncQueue syncQueueFromMap(Map<String, dynamic> map) {
     return SyncQueue(
@@ -32,9 +33,10 @@ class SyncQueue {
     );
   }
 
-  static Future<SyncQueue> queueSyncRequest({required String action,
-    required String tableName,
-    required Map<String, dynamic> data}) async {
+  static Future<SyncQueue> queueSyncRequest(
+      {required String action,
+      required String tableName,
+      required Map<String, dynamic> data}) async {
     final id = await DBHelper.insert(
       'sync_queue',
       {
@@ -64,44 +66,52 @@ class SyncQueue {
     return SyncQueue.syncQueueFromMap(instanceMap);
   }
 
-  static Future<void> processSyncQueue() async {
-    print('syncing');
+  static Future<List<SyncQueue>> getSyncQueue() async {
+    final List<SyncQueue> syncQueueList = [];
     final isLogin = await AuthToken.isLogin();
     if (isLogin && await isInternetConnected()) {
       final db = await DBHelper.database();
       final List<Map<String, dynamic>> queuedRequests =
-      await db.query('sync_queue', where: 'synced = 0');
+          await db.query('sync_queue', where: 'synced = 0');
       print(queuedRequests);
 
       for (Map<String, dynamic> request in queuedRequests) {
-        final syncQueue = SyncQueue.syncQueueFromMap(request);
-        if (syncQueue.tableName == 'category') {
-          final statusCode = await Category.
-              createCategoryAPI(syncQueue.data['title']);
-          if (statusCode == 201) {
-            syncQueue.sync();
-          }
-        } else if (syncQueue.tableName == 'note') {
-          switch (syncQueue.action) {
-            case 'create':
-              final statusCode = await Note.createNoteAPI(syncQueue.data);
-              if (statusCode == 201) {
-                syncQueue.sync();
-              }
-              break;
-            case 'update':
-              final statusCode = await Note.updateNoteAPI(syncQueue.data);
-              if (statusCode == 200) {
-                syncQueue.sync();
-              }
-              break;
-            case 'delete':
-              final statusCode = await Note.deleteNoteAPI(syncQueue.data);
-              if (statusCode == 204) {
-                syncQueue.sync();
-              }
-              break;
-          }
+        syncQueueList.add(SyncQueue.syncQueueFromMap(request));
+      }
+    }
+    return syncQueueList;
+  }
+
+  static Future<void> processSyncQueue() async {
+    final syncQueueList = await getSyncQueue();
+    print('syncing');
+    for (SyncQueue syncQueue in syncQueueList) {
+      if (syncQueue.tableName == 'category') {
+        final statusCode =
+            await Category.createCategoryAPI(syncQueue.data['title']);
+        if (statusCode == 201) {
+          syncQueue.sync();
+        }
+      } else if (syncQueue.tableName == 'note') {
+        switch (syncQueue.action) {
+          case 'create':
+            final statusCode = await Note.createNoteAPI(syncQueue.data);
+            if (statusCode == 201) {
+              syncQueue.sync();
+            }
+            break;
+          case 'update':
+            final statusCode = await Note.updateNoteAPI(syncQueue.data);
+            if (statusCode == 200) {
+              syncQueue.sync();
+            }
+            break;
+          case 'delete':
+            final statusCode = await Note.deleteNoteAPI(syncQueue.data);
+            if (statusCode == 204) {
+              syncQueue.sync();
+            }
+            break;
         }
       }
     }

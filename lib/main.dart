@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:notine_flutter/screens/home.dart';
 import 'package:notine_flutter/screens/signup.dart';
+import 'package:notine_flutter/screens/sync_queue.dart';
 import 'package:provider/provider.dart';
 
 import 'models/category.dart';
@@ -68,6 +69,7 @@ class MyApp extends StatelessWidget {
           LoginScreen.routeName: (ctx) => const LoginScreen(),
           ForgotPasswordScreen.routeName: (ctx) => const ForgotPasswordScreen(),
           EmailSentScreen.routeName: (ctx) => const EmailSentScreen(),
+          SyncQueueScreen.routeName: (ctx) => SyncQueueScreen(),
         },
       ),
     );

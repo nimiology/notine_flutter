@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+
+import 'package:notine_flutter/screens/sync_queue.dart';
 
 class HomeAppbar extends StatelessWidget {
   String appBarName;
@@ -7,14 +8,13 @@ class HomeAppbar extends StatelessWidget {
   VoidCallback onTap;
   Widget screenIcon;
 
-  HomeAppbar({
-    Key? key,
-    this.appBarName = 'Notine',
-    this.chatScreenEnabled = true,
-    required this.onTap,
-    required this.screenIcon
-
-  }) : super(key: key);
+  HomeAppbar(
+      {Key? key,
+      this.appBarName = 'Notine',
+      this.chatScreenEnabled = true,
+      required this.onTap,
+      required this.screenIcon})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,15 +24,17 @@ class HomeAppbar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            appBarName,
-            style: theme.textTheme.displaySmall,
+          GestureDetector(
+            onLongPress: () {
+              Navigator.pushNamed(context, SyncQueueScreen.routeName);
+            },
+            child: Text(
+              appBarName,
+              style: theme.textTheme.displaySmall,
+            ),
           ),
           if (chatScreenEnabled)
-            GestureDetector(
-                onTap: onTap,
-                child: screenIcon
-            ),
+            GestureDetector(onTap: onTap, child: screenIcon),
         ],
       ),
     );
