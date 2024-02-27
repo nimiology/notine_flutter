@@ -98,9 +98,5 @@ class AuthToken {
   static logout() async {
     await AuthToken.deleteAccessToken();
     await AuthToken.deleteRefreshToken();
-    MyApp.navigatorKey.currentState?.pushNamedAndRemoveUntil(
-      LoginScreen.routeName,
-      (route) => false,
-    );
   }
 }

@@ -57,36 +57,68 @@ class Note {
     });
     if (response.statusCode == 201) {
       final responseData = json.decode(utf8.decode(response.bodyBytes));
-      print(responseData);
-      final serverId = responseData['id'];
-      responseData['serverId'] = serverId;
-      responseData['id'] = data['id'];
-      print(data);
-      DBHelper.insert('note', responseData);
+      final Map<String, Object> instanceMap = {
+        'id': data['id'],
+        'server_id': responseData['id'],
+        'title': data['title'],
+        'content': data['content'],
+        'color': data['color'],
+        'category_title': data['category_title'],
+        'created': DateTime.parse(responseData['created'])
+            .toLocal()
+            .millisecondsSinceEpoch,
+        'updated': DateTime.parse(responseData['updated'])
+            .toLocal()
+            .millisecondsSinceEpoch,
+      };
+      DBHelper.insert('note', instanceMap);
     }
     return response.statusCode;
   }
-  Future<int> updateNoteAPI() async {
+
+  static Future<int> updateNoteAPI(Map data) async {
     final token = await AuthToken.accessToken();
-    final response =
-    await http.patch(Uri.parse('https://notine.liara.run/note/$serverId/'),
+    final response = await http.patch(
+        Uri.parse('https://notine.liara.run/note/${data["server_id"]}/'),
         body: {
-      'title': title,
-      'content': content,
-      'color': colorNames[color],
-      'category': category.title,
-    },
+          'title': data['title'],
+          'content': data['content'],
+          'color': data['color'],
+          'category': data['category_title'],
+        },
         headers: {
-      'Authorization': "Bearer $token"
-    });
+          'Authorization': "Bearer $token"
+        });
     if (response.statusCode == 200) {
-      final data = json.decode(utf8.decode(response.bodyBytes));
-      print(data);
-      serverId = data['id'];
-      data['serverId'] = serverId;
-      data['id'] = id;
-      print(data);
-      DBHelper.insert('note', data);
+      final responseData = json.decode(utf8.decode(response.bodyBytes));
+      final Map<String, Object> instanceMap = {
+        'id': data['id'],
+        'server_id': responseData['id'],
+        'title': data['title'],
+        'content': data['content'],
+        'color': data['color'],
+        'category_title': data['category_title'],
+        'created': DateTime.parse(responseData['created'])
+            .toLocal()
+            .millisecondsSinceEpoch,
+        'updated': DateTime.parse(responseData['updated'])
+            .toLocal()
+            .millisecondsSinceEpoch,
+      };
+      DBHelper.insert('note', instanceMap);
+    }
+    return response.statusCode;
+  }
+  static Future<int> deleteNoteAPI(Map data) async {
+    final token = await AuthToken.accessToken();
+    final response = await http.delete(
+        Uri.parse('https://notine.liara.run/note/${data["server_id"]}/'),
+        headers: {
+          'Authorization': "Bearer $token"
+        });
+    if (response.statusCode == 204) {
+      final note = Note.noteFromMapDB(data);
+      await DBHelper.delete("note", note.id);
     }
     return response.statusCode;
   }

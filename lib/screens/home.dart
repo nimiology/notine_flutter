@@ -67,7 +67,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             return snapshot.data!
-                                ? Container()
+                                ? GestureDetector(
+                                    onTap: () async {
+                                      await AuthToken.logout();
+                                      setState(() {});
+                                    },
+                                    child: Text(
+                                      'Log out',
+                                      style: theme.textTheme.titleMedium
+                                          ?.copyWith(
+                                              color: theme.colorScheme.error),
+                                    ),
+                                  )
                                 : GestureDetector(
                                     onTap: () {
                                       Navigator.pushNamed(

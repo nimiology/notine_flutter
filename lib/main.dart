@@ -32,7 +32,6 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    SyncQueue.processSyncQueue();
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: lightTheme.scaffoldBackgroundColor,
       statusBarIconBrightness: lightTheme.brightness == Brightness.light

@@ -68,11 +68,12 @@ class SyncQueue {
       final db = await DBHelper.database();
       final List<Map<String, dynamic>> queuedRequests =
       await db.query('sync_queue', where: 'synced = 0');
+      print(queuedRequests);
 
       for (Map<String, dynamic> request in queuedRequests) {
         final syncQueue = SyncQueue.syncQueueFromMap(request);
         if (syncQueue.tableName == 'category') {
-          final statusCode = Category.
+          final statusCode = await Category.
               createCategoryAPI(syncQueue.data['title']);
           if (statusCode == 201) {
             syncQueue.sync();
@@ -80,18 +81,22 @@ class SyncQueue {
         } else if (syncQueue.tableName == 'note') {
           switch (syncQueue.action) {
             case 'create':
-              final statusCode = Note.createNoteAPI(syncQueue.data);
+              final statusCode = await Note.createNoteAPI(syncQueue.data);
               if (statusCode == 201) {
                 syncQueue.sync();
               }
               break;
             case 'update':
-              final statusCode = Note.createNoteAPI(syncQueue.data);
+              final statusCode = await Note.updateNoteAPI(syncQueue.data);
               if (statusCode == 200) {
                 syncQueue.sync();
               }
               break;
             case 'delete':
+              final statusCode = await Note.deleteNoteAPI(syncQueue.data);
+              if (statusCode == 204) {
+                syncQueue.sync();
+              }
               break;
           }
         }
