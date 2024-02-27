@@ -6,12 +6,13 @@ import 'package:http/http.dart' as http;
 
 import '../helper/auth_jwt_token_helper.dart';
 import '../helper/db_helpers.dart';
+import '../helper/internet_connection.dart';
 import 'category.dart';
 import 'note_color_constants.dart';
 import 'sync_queue.dart';
 
 class Note {
-  int id;
+  int? id;
   int? serverId;
   String title;
   String? content;
@@ -21,7 +22,7 @@ class Note {
   Category category;
 
   Note({
-    required this.id,
+    this.id,
     this.serverId,
     required this.title,
     this.content,
@@ -32,9 +33,8 @@ class Note {
   });
 
   void delete() async {
-    await DBHelper.delete("note", id);
-    final syncQueue =
-        SyncQueue.queueSyncRequest(action: 'delete', tableName: 'note', data: {
+    await DBHelper.delete("note", id!);
+    SyncQueue.queueSyncRequest(action: 'delete', tableName: 'note', data: {
       'id': id,
       'server_id': serverId,
       'title': title,
@@ -42,6 +42,27 @@ class Note {
       'color': colorNames[color],
       'category_title': category.title,
     });
+  }
+
+  void save() async {
+    final Map<String, Object> instanceMap = {
+      'title': title,
+      'created': created.millisecondsSinceEpoch,
+      'updated': updated.millisecondsSinceEpoch,
+      'category_title': category.title,
+      'color': colorNames[color] ?? colorNames[getRandomColor()]!,
+    };
+    if (content != null) {
+      instanceMap['content'] = content!;
+    }
+    if (id != null) {
+      instanceMap['id'] = id!;
+    }
+    if (serverId != null) {
+      instanceMap['server_id'] = serverId!;
+    }
+    id = await DBHelper.insert('note', instanceMap);
+    return;
   }
 
   static Future<int> createNoteAPI(Map data) async {
@@ -109,16 +130,15 @@ class Note {
     }
     return response.statusCode;
   }
+
   static Future<int> deleteNoteAPI(Map data) async {
     final token = await AuthToken.accessToken();
     final response = await http.delete(
         Uri.parse('https://notine.liara.run/note/${data["server_id"]}/'),
-        headers: {
-          'Authorization': "Bearer $token"
-        });
+        headers: {'Authorization': "Bearer $token"});
     if (response.statusCode == 204) {
       final note = Note.noteFromMapDB(data);
-      await DBHelper.delete("note", note.id);
+      await DBHelper.delete("note", note.id!);
     }
     return response.statusCode;
   }
@@ -160,8 +180,44 @@ class Note {
       created: DateTime.parse(map['created']).toLocal(),
       updated: DateTime.parse(map['updated']).toLocal(),
       color: _getKeyFromValue(map['color']) ?? getRandomColor(),
-      category: Category(title: map['category']),
+      category: Category(title: map['category']['title']),
     );
+  }
+
+  static Future<List<Note>> getNotesAPI() async {
+    List<Note> items = [];
+    final token = await AuthToken.accessToken();
+    if (await isInternetConnected() && token != null) {
+      final response = await http.get(
+          Uri.parse('https://notine.liara.run/note/'),
+          headers: {'Authorization': "Bearer $token"});
+      if (response.statusCode == 200) {
+        final responseData = json.decode(utf8.decode(response.bodyBytes));
+        for (Map noteMap in responseData) {
+          final note = Note.noteFromMapAPI(noteMap);
+          if (!items.any((element) => element.serverId == note.serverId)) {
+            note.save();
+            items.add(note);
+          } else {
+            final index = items
+                .indexWhere((element) => element.serverId == note.serverId);
+            final oldNote = items[index];
+            if (note.updated.isAfter(oldNote.updated)) {
+              oldNote.serverId = noteMap['id'];
+              oldNote.title = noteMap['title'];
+              oldNote.content = noteMap['content'];
+              oldNote.color =
+                  _getKeyFromValue(noteMap['color']) ?? getRandomColor();
+              oldNote.category = Category(title: noteMap['category']['title']);
+              oldNote.updated = DateTime.parse(noteMap['updated']).toLocal();
+              oldNote.save();
+              items[index] = oldNote;
+            }
+          }
+        }
+      }
+    }
+    return items;
   }
 
   static Future<List<Note>> getNotes() async {
@@ -205,28 +261,11 @@ class Note {
     final note = Note.noteFromMapDB(instanceMap);
     if (createSyncQueue) {
       if (noteId != id) {
-        final syncQueue = SyncQueue.queueSyncRequest(
-            action: 'create',
-            tableName: 'note',
-            data: {
-              'id': note.id,
-              'title': note.title,
-              'content': note.content,
-              'color': colorNames[note.color],
-              'category_title': note.category.title,
-            });
+        SyncQueue.queueSyncRequest(
+            action: 'create', tableName: 'note', data: instanceMap);
       } else {
-        final syncQueue = SyncQueue.queueSyncRequest(
-            action: 'update',
-            tableName: 'note',
-            data: {
-              'id': note.id,
-              'server_id': note.serverId,
-              'title': note.title,
-              'content': note.content,
-              'color': colorNames[note.color],
-              'category_title': note.category.title,
-            });
+        SyncQueue.queueSyncRequest(
+            action: 'update', tableName: 'note', data: instanceMap);
       }
     }
     return note;
@@ -240,6 +279,10 @@ class NoteProvider extends ChangeNotifier {
 
   Future<void> fetchNotes() async {
     _notes = await Note.getNotes();
+    _notes.sort((a, b) => a.updated.compareTo(b.updated));
+    notifyListeners();
+    _notes = await Note.getNotesAPI();
+    _notes.sort((a, b) => a.updated.compareTo(b.updated));
     notifyListeners();
   }
 

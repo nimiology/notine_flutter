@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:http/http.dart' as http;
 
 import '../helper/auth_jwt_token_helper.dart';
 import '../helper/db_helpers.dart';
+import '../helper/internet_connection.dart';
 import 'category.dart';
 import 'note.dart';
 
@@ -63,8 +65,9 @@ class SyncQueue {
   }
 
   static Future<void> processSyncQueue() async {
+    print('syncing');
     final isLogin = await AuthToken.isLogin();
-    if (isLogin) {
+    if (isLogin && await isInternetConnected()) {
       final db = await DBHelper.database();
       final List<Map<String, dynamic>> queuedRequests =
       await db.query('sync_queue', where: 'synced = 0');

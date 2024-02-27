@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/category.dart';
 import '../models/note.dart';
+import '../models/sync_queue.dart';
 import '../widgets/appbar.dart';
 import '../widgets/home/note_preview.dart';
 
@@ -20,7 +21,8 @@ class _CategoryNoteState extends State<CategoryNote> {
   List<Note> notes = [];
 
   Future<void> getCategoryNote() async {
-    final noteList = Provider.of<NoteProvider>(context, listen: false).notes;
+    notes.clear();
+    final noteList = Provider.of<NoteProvider>(context, listen: false).notes.reversed;
     for (Note note in noteList) {
       if (note.category.title == category.title) {
         notes.add(note);
@@ -28,6 +30,11 @@ class _CategoryNoteState extends State<CategoryNote> {
     }
   }
 
+  Future<void> getCategoryNoteRefresh() async {
+    SyncQueue.processSyncQueue();
+    await Provider.of<NoteProvider>(context, listen: false).fetchNotes();
+    await getCategoryNote();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +49,7 @@ class _CategoryNoteState extends State<CategoryNote> {
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: getCategoryNote,
+          onRefresh: getCategoryNoteRefresh,
           child: Column(
             children: [
               CustomAppBar(

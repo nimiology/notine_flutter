@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../helper/auth_jwt_token_helper.dart';
 import '../models/category.dart';
 import '../models/note.dart';
+import '../models/sync_queue.dart';
 import '../widgets/home/category_line.dart';
 import '../widgets/home_appbar.dart';
 import 'add_note.dart';
@@ -44,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> getNotes() async {
+    SyncQueue.processSyncQueue();
     await Provider.of<NoteProvider>(context, listen: false).fetchNotes();
   }
 

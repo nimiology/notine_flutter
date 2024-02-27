@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 
 import '../helper/auth_jwt_token_helper.dart';
 import '../helper/db_helpers.dart';
+import '../helper/internet_connection.dart';
 import 'sync_queue.dart';
 
 class CategoryProvider extends ChangeNotifier {
@@ -45,14 +48,35 @@ class Category {
   }
 
   static Future<List<Category>> getCategory() async {
-    List<Category> _items = [];
+    List<Category> items = [];
     List categoryList = await DBHelper.getData('category');
     for (Map categoryMap in categoryList) {
-      _items.add(Category.categoryFromMap(categoryMap));
+      items.add(Category.categoryFromMap(categoryMap));
     }
-    return _items;
+    final token = await AuthToken.accessToken();
+    if (await isInternetConnected() && token != null) {
+      final response = await http.get(
+          Uri.parse('https://notine.liara.run/category/'),
+          headers: {'Authorization': "Bearer $token"});
+      if (response.statusCode == 200) {
+        final responseData = json.decode(utf8.decode(response.bodyBytes));
+        for (Map categoryMap in responseData) {
+          final category = Category(title: categoryMap['title']);
+          if (!items.any((element) => element.title == category.title)) {
+            category.save();
+            items.add(category);
+          }
+        }
+      }
+    }
+    return items;
   }
-
+  void save()async{
+    final instanceMap = {
+      'title': title,
+    };
+    DBHelper.insert('category', instanceMap);
+  }
   static Category addCategory(String title) {
     final instance = Category(title: title);
     final instanceMap = {

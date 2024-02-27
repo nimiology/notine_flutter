@@ -74,6 +74,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
     final updatedNote = Provider.of<NoteProvider>(context, listen: false)
         .addNote(
             noteId: note?.id,
+            serverId: note?.serverId,
             title: title,
             created: created,
             updated: updated,
