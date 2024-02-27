@@ -281,7 +281,7 @@ class NoteProvider extends ChangeNotifier {
     _notes = await Note.getNotes();
     _notes.sort((a, b) => a.updated.compareTo(b.updated));
     notifyListeners();
-    _notes = await Note.getNotesAPI();
+    _notes += await Note.getNotesAPI();
     _notes.sort((a, b) => a.updated.compareTo(b.updated));
     notifyListeners();
   }
