@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:notine_flutter/screens/home.dart';
-import 'package:notine_flutter/screens/signup.dart';
-import 'package:notine_flutter/screens/sync_queue.dart';
 import 'package:provider/provider.dart';
 
 import 'models/category.dart';
 import 'models/note.dart';
+import 'models/sync_queue.dart';
 import 'screens/add_category.dart';
 import 'screens/add_note.dart';
 import 'screens/category_notes.dart';
@@ -14,7 +12,10 @@ import 'screens/choose_category.dart';
 import 'screens/choose_color.dart';
 import 'screens/email_sent.dart';
 import 'screens/forgot_password.dart';
+import 'screens/home.dart';
 import 'screens/login.dart';
+import 'screens/signup.dart';
+import 'screens/sync_queue.dart';
 import 'theme/theme_constants.dart';
 import 'theme/theme_manager.dart';
 
@@ -49,7 +50,8 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider.value(
             value: NoteProvider()
-        )
+        ),
+        ChangeNotifierProvider.value(value: SyncQueueProvider())
       ],
       child: MaterialApp(
         title: 'Flutter Demo',

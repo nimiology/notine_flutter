@@ -29,7 +29,7 @@ class CategoryLine extends StatelessWidget {
             children: [
               Flexible(
                 child: Text(
-                  category.title*2,
+                  category.title,
                   style: theme.textTheme.titleMedium,
                   overflow: TextOverflow.ellipsis,
                 ),

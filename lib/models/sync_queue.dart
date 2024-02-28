@@ -1,7 +1,6 @@
 import 'dart:convert';
 
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
 
 import '../helper/auth_jwt_token_helper.dart';
 import '../helper/db_helpers.dart';
@@ -65,55 +64,79 @@ class SyncQueue {
     await DBHelper.insert('sync_queue', instanceMap);
     return SyncQueue.syncQueueFromMap(instanceMap);
   }
+}
 
-  static Future<List<SyncQueue>> getSyncQueue() async {
-    final List<SyncQueue> syncQueueList = [];
-    final isLogin = await AuthToken.isLogin();
-    if (isLogin && await isInternetConnected()) {
-      final db = await DBHelper.database();
-      final List<Map<String, dynamic>> queuedRequests =
-          await db.query('sync_queue', where: 'synced = 0');
-      print(queuedRequests);
+class SyncQueueProvider extends ChangeNotifier {
+  List<SyncQueue> _syncQueueList = [];
+  bool processing = false;
 
-      for (Map<String, dynamic> request in queuedRequests) {
-        syncQueueList.add(SyncQueue.syncQueueFromMap(request));
-      }
-    }
-    return syncQueueList;
+  List<SyncQueue> get syncQueueList => _syncQueueList;
+
+  void addToSyncQueue(SyncQueue syncQueue) {
+    _syncQueueList.add(syncQueue);
+    notifyListeners();
   }
 
-  static Future<void> processSyncQueue() async {
-    final syncQueueList = await getSyncQueue();
-    print('syncing');
-    for (SyncQueue syncQueue in syncQueueList) {
-      if (syncQueue.tableName == 'category') {
-        final statusCode =
-            await Category.createCategoryAPI(syncQueue.data['title']);
-        if (statusCode == 201) {
-          syncQueue.sync();
-        }
-      } else if (syncQueue.tableName == 'note') {
-        switch (syncQueue.action) {
-          case 'create':
-            final statusCode = await Note.createNoteAPI(syncQueue.data);
+  void removeFromSyncQueue(SyncQueue syncQueue) {
+    _syncQueueList.remove(syncQueue);
+    notifyListeners();
+  }
+
+  void syncQueueSyncRequest(SyncQueue syncQueue) {
+    syncQueue.sync();
+    removeFromSyncQueue(syncQueue);
+  }
+
+  Future<void> processSyncQueue() async {
+    if (!processing) {
+      processing = true;
+      await getSyncQueue();
+      final isLogin = await AuthToken.isLogin();
+      print('sd');
+      print(_syncQueueList);
+      if (isLogin && await isInternetConnected()) {
+        for (SyncQueue syncQueue in _syncQueueList) {
+          if (syncQueue.tableName == 'category') {
+            final statusCode =
+                await Category.createCategoryAPI(syncQueue.data['title']);
             if (statusCode == 201) {
-              syncQueue.sync();
+              syncQueueSyncRequest(syncQueue);
             }
-            break;
-          case 'update':
-            final statusCode = await Note.updateNoteAPI(syncQueue.data);
-            if (statusCode == 200) {
-              syncQueue.sync();
+          } else if (syncQueue.tableName == 'note') {
+            switch (syncQueue.action) {
+              case 'create':
+                final statusCode = await Note.createNoteAPI(syncQueue.data);
+                if (statusCode == 201) {
+                  syncQueueSyncRequest(syncQueue);
+                }
+                break;
+              case 'update':
+                final statusCode = await Note.updateNoteAPI(syncQueue.data);
+                if (statusCode == 200) {
+                  syncQueueSyncRequest(syncQueue);
+                }
+                break;
+              case 'delete':
+                final statusCode = await Note.deleteNoteAPI(syncQueue.data);
+                if (statusCode == 204) {
+                  syncQueueSyncRequest(syncQueue);
+                }
+                break;
             }
-            break;
-          case 'delete':
-            final statusCode = await Note.deleteNoteAPI(syncQueue.data);
-            if (statusCode == 204) {
-              syncQueue.sync();
-            }
-            break;
+          }
         }
       }
+      processing = false;
+    }
+  }
+
+  Future<void> getSyncQueue() async {
+    _syncQueueList = [];
+    final db = await DBHelper.database();
+    final List<Map<String, dynamic>> queuedRequests =
+        await db.query('sync_queue', where: 'synced = 0');
+    for (Map<String, dynamic> request in queuedRequests) {
+      _syncQueueList.add(SyncQueue.syncQueueFromMap(request));
     }
   }
 }

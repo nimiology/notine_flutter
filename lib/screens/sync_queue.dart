@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notine_flutter/widgets/appbar.dart';
+import 'package:provider/provider.dart';
 
 import '../models/sync_queue.dart';
 
@@ -13,19 +14,6 @@ class SyncQueueScreen extends StatefulWidget {
 class _SyncQueueScreenState extends State<SyncQueueScreen> {
   List<SyncQueue> _syncQueueList = [];
 
-  @override
-  void initState() {
-    super.initState();
-    _loadSyncQueue();
-  }
-
-  Future<void> _loadSyncQueue() async {
-    List<SyncQueue> syncQueueList = await SyncQueue.getSyncQueue();
-    setState(() {
-      _syncQueueList = syncQueueList;
-    });
-  }
-
   Future<void> _deleteAllSyncQueue() async {
     for (SyncQueue syncQueue in _syncQueueList) {
       syncQueue.sync();
@@ -38,12 +26,20 @@ class _SyncQueueScreenState extends State<SyncQueueScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final syncQueueProvider = Provider.of<SyncQueueProvider>(context);
+    _syncQueueList = syncQueueProvider.syncQueueList;
+
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
             const CustomAppBar(
               title: 'Sync Queue',
+            ),
+            Text(
+              'process status: ${syncQueueProvider.processing.toString()}',
+              style: textTheme.labelSmall,
+              textAlign: TextAlign.center,
             ),
             Expanded(
               child: _syncQueueList.isNotEmpty

@@ -31,7 +31,7 @@ class _CategoryNoteState extends State<CategoryNote> {
   }
 
   Future<void> getCategoryNoteRefresh() async {
-    SyncQueue.processSyncQueue();
+    Provider.of<SyncQueueProvider>(context, listen: false).processSyncQueue();
     await Provider.of<NoteProvider>(context, listen: false).fetchNotes();
     await getCategoryNote();
   }

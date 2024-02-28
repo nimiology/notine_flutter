@@ -45,7 +45,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> getNotes() async {
-    SyncQueue.processSyncQueue();
+    print('ayyy');
+    Provider.of<SyncQueueProvider>(context, listen: false).processSyncQueue();
     await Provider.of<NoteProvider>(context, listen: false).fetchNotes();
   }
 
@@ -57,6 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
         body: Consumer<NoteProvider>(
           builder: (context, noteProvider, _) {
+            print(noteProvider.notes);
             final categories = getNotesByCategory(noteProvider.notes);
             return RefreshIndicator(
               onRefresh: getNotes,
@@ -82,9 +84,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   )
                                 : GestureDetector(
-                                    onTap: () {
-                                      Navigator.pushNamed(
+                                    onTap: () async {
+                                      await Navigator.pushNamed(
                                           context, LoginScreen.routeName);
+                                      setState(() {});
                                     },
                                     child: SvgPicture.asset(
                                       'assets/svgs/user.svg',
