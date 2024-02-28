@@ -299,12 +299,21 @@ class NoteProvider extends ChangeNotifier {
               oldNote.serverId = noteMap['id'];
               oldNote.title = noteMap['title'];
               oldNote.content = noteMap['content'];
-              oldNote.color =
-                  Note._getKeyFromValue(noteMap['color']) ?? Note.getRandomColor();
+              oldNote.color = Note._getKeyFromValue(noteMap['color']) ??
+                  Note.getRandomColor();
               oldNote.category = Category(title: noteMap['category']['title']);
               oldNote.updated = DateTime.parse(noteMap['updated']).toLocal();
               oldNote.save();
               _notes[index] = oldNote;
+            } else {
+              Note.updateNoteAPI({
+                'id':oldNote.id,
+                'server_id': oldNote.serverId,
+                'title': oldNote.title,
+                'content': oldNote.content,
+                'color': colorNames[oldNote.color],
+                'category': oldNote.category.title
+              });
             }
           }
         }

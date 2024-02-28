@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -14,20 +16,34 @@ class NotePreview extends StatefulWidget {
 }
 
 class _NotePreviewState extends State<NotePreview> {
+  late Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(minutes: 1), (_) {
+      // Call setState to trigger a rebuild every minute
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
   String timeDifference() {
-    final updatedTimeDifference =
-        DateTime.now().difference(widget.note.updated);
+    final updatedTimeDifference = DateTime.now().difference(widget.note.updated);
 
     if (updatedTimeDifference.inDays >= 30) {
       return 'last month';
-    } else if (updatedTimeDifference.inDays > 1) {
-      return '${updatedTimeDifference.inDays} days ago';
-    } else if (updatedTimeDifference.inDays == 1) {
-      return 'yesterday';
+    } else if (updatedTimeDifference.inDays >= 1) {
+      return '${updatedTimeDifference.inDays} ${updatedTimeDifference.inDays == 1 ? 'day' : 'days'} ago';
     } else if (updatedTimeDifference.inHours >= 1) {
-      return '${updatedTimeDifference.inHours} hours ago';
-    } else if (updatedTimeDifference.inMinutes > 1) {
-      return '${updatedTimeDifference.inMinutes} minutes ago';
+      return '${updatedTimeDifference.inHours} ${updatedTimeDifference.inHours == 1 ? 'hour' : 'hours'} ago';
+    } else if (updatedTimeDifference.inMinutes >= 1) {
+      return '${updatedTimeDifference.inMinutes} ${updatedTimeDifference.inMinutes == 1 ? 'minute' : 'minutes'} ago';
     } else {
       return 'just now';
     }

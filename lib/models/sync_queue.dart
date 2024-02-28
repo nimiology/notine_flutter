@@ -92,8 +92,6 @@ class SyncQueueProvider extends ChangeNotifier {
       processing = true;
       await getSyncQueue();
       final isLogin = await AuthToken.isLogin();
-      print('sd');
-      print(_syncQueueList);
       if (isLogin && await isInternetConnected()) {
         for (SyncQueue syncQueue in _syncQueueList) {
           if (syncQueue.tableName == 'category') {
