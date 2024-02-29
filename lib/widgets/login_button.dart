@@ -16,7 +16,7 @@ class LoginButton extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.all(15),
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: loading ? null : onPressed,
         child: loading
             ? const SizedBox(
                 height: 15,
