@@ -45,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> getNotes() async {
-    print('ayyy');
+    Provider.of<CategoryProvider>(context, listen: false).fetchCategories();
     Provider.of<SyncQueueProvider>(context, listen: false).processSyncQueue();
     await Provider.of<NoteProvider>(context, listen: false).fetchNotes();
   }
@@ -58,7 +58,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
         body: Consumer<NoteProvider>(
           builder: (context, noteProvider, _) {
-            print(noteProvider.notes);
             final categories = getNotesByCategory(noteProvider.notes);
             return RefreshIndicator(
               onRefresh: getNotes,

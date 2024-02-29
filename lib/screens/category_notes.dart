@@ -22,7 +22,8 @@ class _CategoryNoteState extends State<CategoryNote> {
 
   Future<void> getCategoryNote() async {
     notes.clear();
-    final noteList = Provider.of<NoteProvider>(context, listen: false).notes.reversed;
+    final noteList =
+        Provider.of<NoteProvider>(context, listen: false).notes.reversed;
     for (Note note in noteList) {
       if (note.category.title == category.title) {
         notes.add(note);
@@ -55,6 +56,14 @@ class _CategoryNoteState extends State<CategoryNote> {
               CustomAppBar(
                 back: true,
                 title: category.title,
+                svgIcon: 'trash.svg',
+                svgIconOnTapFunction: () async {
+                  Provider.of<CategoryProvider>(context, listen: false)
+                      .deleteCategory(category);
+                  Provider.of<NoteProvider>(context, listen: false)
+                      .deleteNoteBasedOnCategory(category);
+                  Navigator.pop(context);
+                },
               ),
               Expanded(
                 child: GridView.count(

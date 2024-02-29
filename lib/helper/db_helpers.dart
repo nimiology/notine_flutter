@@ -60,7 +60,7 @@ class DBHelper {
     return db.query(table);
   }
 
-  static Future delete(
+  static Future deleteWithID(
     String tableName,
     int where,
   ) async {
@@ -70,7 +70,16 @@ class DBHelper {
       [where],
     );
   }
-
+  static Future deleteWithTitle(
+      String tableName,
+      String where,
+      ) async {
+    final db = await DBHelper.database();
+    await db.rawDelete(
+      'DELETE FROM $tableName WHERE title = ?',
+      [where],
+    );
+  }
   static Future<List<Map<String, dynamic>>> getDataWithQuery(
       String query) async {
     final db = await DBHelper.database();

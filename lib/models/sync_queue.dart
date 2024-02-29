@@ -93,12 +93,21 @@ class SyncQueueProvider extends ChangeNotifier {
       await getSyncQueue();
       final isLogin = await AuthToken.isLogin();
       if (isLogin && await isInternetConnected()) {
-        for (SyncQueue syncQueue in _syncQueueList) {
+        List<SyncQueue> syncQueueCopy = List.from(_syncQueueList);
+        for (SyncQueue syncQueue in syncQueueCopy) {
           if (syncQueue.tableName == 'category') {
-            final statusCode =
-                await Category.createCategoryAPI(syncQueue.data['title']);
-            if (statusCode == 201) {
-              syncQueueSyncRequest(syncQueue);
+            if (syncQueue.action == 'create') {
+              final statusCode =
+                  await Category.createCategoryAPI(syncQueue.data['title']);
+              if (statusCode == 201) {
+                syncQueueSyncRequest(syncQueue);
+              }
+            }else if (syncQueue.action == 'delete') {
+              final statusCode =
+              await Category.deleteCategoryAPI(syncQueue.data);
+              if (statusCode == 204) {
+                syncQueueSyncRequest(syncQueue);
+              }
             }
           } else if (syncQueue.tableName == 'note') {
             switch (syncQueue.action) {

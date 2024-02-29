@@ -21,6 +21,12 @@ class CategoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteCategory(Category category) async {
+    _categories.remove(category);
+    category.delete();
+    notifyListeners();
+  }
+
   Future<void> addCategory(String title) async {
     final category = Category.addCategory(title);
     _categories.add(category);
@@ -59,6 +65,15 @@ class Category {
 
   Category({required this.title});
 
+  void delete() async {
+    await DBHelper.deleteWithTitle("note", title);
+    SyncQueue.queueSyncRequest(
+        action: 'delete',
+        tableName: 'category',
+        data: {'title': title,}
+    );
+  }
+
   static Future<int> createCategoryAPI(String title) async {
     final token = await AuthToken.accessToken();
 
@@ -68,6 +83,19 @@ class Category {
         ),
         body: {'title': title},
         headers: {'Authorization': "Bearer $token"});
+    return response.statusCode;
+  }
+
+  static Future<int> deleteCategoryAPI(Map data) async {
+    final token = await AuthToken.accessToken();
+    final response = await http.delete(
+        Uri.parse('https://notine.liara.run/category/${data["title"]}/'),
+        headers: {'Authorization': "Bearer $token"});
+    if (response.statusCode == 204) {
+      final category = Category.categoryFromMap(data);
+      await DBHelper.deleteWithTitle("category", category.title);
+    }
+    print(response.body);
     return response.statusCode;
   }
 

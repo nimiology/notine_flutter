@@ -33,7 +33,7 @@ class Note {
   });
 
   void delete() async {
-    await DBHelper.delete("note", id!);
+    await DBHelper.deleteWithID("note", id!);
     SyncQueue.queueSyncRequest(action: 'delete', tableName: 'note', data: {
       'id': id,
       'server_id': serverId,
@@ -76,7 +76,6 @@ class Note {
     }, headers: {
       'Authorization': "Bearer $token"
     });
-    print(response.body);
     if (response.statusCode == 201) {
       final responseData = json.decode(utf8.decode(response.bodyBytes));
       final Map<String, Object> instanceMap = {
@@ -139,7 +138,7 @@ class Note {
         headers: {'Authorization': "Bearer $token"});
     if (response.statusCode == 204) {
       final note = Note.noteFromMapDB(data);
-      await DBHelper.delete("note", note.id!);
+      await DBHelper.deleteWithID("note", note.id!);
     }
     return response.statusCode;
   }
@@ -326,5 +325,16 @@ class NoteProvider extends ChangeNotifier {
     for (Map categoryMap in categoryList) {
       _notes.add(Note.noteFromMapDB(categoryMap));
     }
+  }
+
+  Future<void> deleteNoteBasedOnCategory(Category category) async {
+    List<Note> notesCopy = List.from(_notes);
+
+    for (Note note in notesCopy){
+      if (note.category.title == category.title){
+        await deleteNote(note);
+      }
+    }
+    notifyListeners();
   }
 }

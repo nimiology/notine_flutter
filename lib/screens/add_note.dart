@@ -40,10 +40,17 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
 
   Note? note;
 
-
   void submitNote() async {
     if (saving) {
-      return ;
+      return;
+    }
+
+    // first check if anything has not changed
+    if (titleController.text == note?.title &&
+        descriptionController.text == note?.content &&
+        this.color == note?.color &&
+        this.category?.title == note?.category.title) {
+      return;
     }
     saving = true;
     final title = titleController.text;
@@ -58,16 +65,14 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
         titleError = true;
         errorText = 'Title cannot be empty';
         saving = false;
-
       });
     }
 
-    if ( category == null) {
+    if (category == null) {
       return setState(() {
         categoryError = true;
         errorText = 'Category cannot be empty';
         saving = false;
-
       });
     }
 
@@ -111,14 +116,15 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
               svgIcon: note != null ? 'trash.svg' : null,
               svgIconOnTapFunction: note != null
                   ? () {
-                      Provider.of<NoteProvider>(context, listen: false).deleteNote(note!);
+                      Provider.of<NoteProvider>(context, listen: false)
+                          .deleteNote(note!);
                       Navigator.pop(context);
                     }
                   : null,
-              backFunction: (){
+              backFunction: () {
                 if (note != null) {
                   submitNote();
-                }else {
+                } else {
                   Navigator.pop(context);
                 }
               },
