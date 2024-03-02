@@ -68,7 +68,7 @@ class Note {
   static Future<int> createNoteAPI(Map data) async {
     final token = await AuthToken.accessToken();
     final response =
-        await http.post(Uri.parse('https://notine.liara.run/note/'), body: {
+        await http.post(Uri.parse('https://notine.pythonanywhere.com/note/'), body: {
       'title': data['title'],
       'content': data['content'],
       'color': data['color'],
@@ -100,7 +100,7 @@ class Note {
   static Future<int> updateNoteAPI(Map data) async {
     final token = await AuthToken.accessToken();
     final response = await http.patch(
-        Uri.parse('https://notine.liara.run/note/${data["server_id"]}/'),
+        Uri.parse('https://notine.pythonanywhere.com/note/${data["server_id"]}/'),
         body: {
           'title': data['title'],
           'content': data['content'],
@@ -134,7 +134,7 @@ class Note {
   static Future<int> deleteNoteAPI(Map data) async {
     final token = await AuthToken.accessToken();
     final response = await http.delete(
-        Uri.parse('https://notine.liara.run/note/${data["server_id"]}/'),
+        Uri.parse('https://notine.pythonanywhere.com/note/${data["server_id"]}/'),
         headers: {'Authorization': "Bearer $token"});
     if (response.statusCode == 204) {
       final note = Note.noteFromMapDB(data);
@@ -281,7 +281,7 @@ class NoteProvider extends ChangeNotifier {
     final token = await AuthToken.accessToken();
     if (await isInternetConnected() && token != null) {
       final response = await http.get(
-          Uri.parse('https://notine.liara.run/note/'),
+          Uri.parse('https://notine.pythonanywhere.com/note/'),
           headers: {'Authorization': "Bearer $token"});
       if (response.statusCode == 200) {
         final responseData = json.decode(utf8.decode(response.bodyBytes));

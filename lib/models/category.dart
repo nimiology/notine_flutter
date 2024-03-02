@@ -44,7 +44,7 @@ class CategoryProvider extends ChangeNotifier {
     final token = await AuthToken.accessToken();
     if (await isInternetConnected() && token != null) {
       final response = await http.get(
-          Uri.parse('https://notine.liara.run/category/'),
+          Uri.parse('https://notine.pythonanywhere.com/category/'),
           headers: {'Authorization': "Bearer $token"});
       if (response.statusCode == 200) {
         final responseData = json.decode(utf8.decode(response.bodyBytes));
@@ -79,7 +79,7 @@ class Category {
 
     final response = await http.post(
         Uri.parse(
-          'https://notine.liara.run/category/',
+          'https://notine.pythonanywhere.com/category/',
         ),
         body: {'title': title},
         headers: {'Authorization': "Bearer $token"});
@@ -89,7 +89,7 @@ class Category {
   static Future<int> deleteCategoryAPI(Map data) async {
     final token = await AuthToken.accessToken();
     final response = await http.delete(
-        Uri.parse('https://notine.liara.run/category/${data["title"]}/'),
+        Uri.parse('https://notine.pythonanywhere.com/category/${data["title"]}/'),
         headers: {'Authorization': "Bearer $token"});
     if (response.statusCode == 204) {
       final category = Category.categoryFromMap(data);
