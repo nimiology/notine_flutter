@@ -57,7 +57,7 @@ class _SignUpScreenState extends State<SignUpScreen>
         if (email.isValidEmail()) {
           try {
             http.Response response = await http.post(
-                Uri.parse('https://notine.liara.run/auth/users/'),
+                Uri.parse('https://notine.pythonanywhere.com/auth/users/'),
                 body: {
                   'username': username,
                   'email': email,
@@ -70,7 +70,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                   try {
                     final http.Response response2 = await http.post(
                         Uri.parse(
-                            'https://notine.liara.run/auth/jwt/create/'),
+                            'https://notine.pythonanywhere.com/auth/jwt/create/'),
                         body: {'username': username, 'password': password});
                     final Map tokensMap = json.decode(response2.body);
                     switch (response2.statusCode) {

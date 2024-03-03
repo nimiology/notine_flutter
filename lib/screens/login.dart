@@ -52,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen>
       if (username.isNotEmpty && password.isNotEmpty) {
         try {
           http.Response response = await http.post(
-              Uri.parse('https://notine.liara.run/auth/jwt/create/'),
+              Uri.parse('https://notine.pythonanywhere.com/auth/jwt/create/'),
               body: {'username': username, 'password': password});
           var tokensMap = json.decode(response.body);
           switch (response.statusCode) {
