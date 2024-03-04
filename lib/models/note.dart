@@ -311,7 +311,7 @@ class NoteProvider extends ChangeNotifier {
                 'title': oldNote.title,
                 'content': oldNote.content,
                 'color': colorNames[oldNote.color],
-                'category': oldNote.category.title
+                'category_title': oldNote.category.title
               });
             }
           }

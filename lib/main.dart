@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'models/category.dart';
 import 'models/note.dart';
@@ -18,8 +21,15 @@ import 'screens/signup.dart';
 import 'screens/sync_queue.dart';
 import 'theme/theme_constants.dart';
 import 'theme/theme_manager.dart';
+import 'widgets/my_custom_scroll_behavior.dart';
 
 void main() {
+  if (Platform.isWindows) {
+    // Initialize FFI
+    sqfliteFfiInit();
+    // Change the default factory
+    databaseFactory = databaseFactoryFfi;
+  }
   runApp(const MyApp());
 }
 
@@ -45,12 +55,8 @@ class MyApp extends StatelessWidget {
     ));
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(
-            value: CategoryProvider()
-        ),
-        ChangeNotifierProvider.value(
-            value: NoteProvider()
-        ),
+        ChangeNotifierProvider.value(value: CategoryProvider()),
+        ChangeNotifierProvider.value(value: NoteProvider()),
         ChangeNotifierProvider.value(value: SyncQueueProvider())
       ],
       child: MaterialApp(
@@ -60,6 +66,7 @@ class MyApp extends StatelessWidget {
         darkTheme: darkTheme,
         themeMode: themeManager.themeMode,
         initialRoute: HomeScreen.routeName,
+        scrollBehavior: Platform.isWindows ? MyCustomScrollBehavior() : null,
         routes: {
           HomeScreen.routeName: (ctx) => const HomeScreen(),
           CategoryNote.routeName: (ctx) => CategoryNote(),

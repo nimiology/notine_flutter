@@ -40,6 +40,8 @@ class _CategoryNoteState extends State<CategoryNote> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final isSmallScreen = size.width < 600;
+
     final routeArgs = ModalRoute.of(context)!.settings.arguments as Map?;
     if (routeArgs != null) {
       category = routeArgs['category'];
@@ -69,7 +71,8 @@ class _CategoryNoteState extends State<CategoryNote> {
                 child: GridView.count(
                     crossAxisCount: size.width > 600 ? 4 : 2,
                     // Adjust the cross axis count based on screen width
-                    childAspectRatio: size.width / (size.height / 1.7),
+                    childAspectRatio:
+                        size.width / (size.height / (isSmallScreen ? 1.7 : 1)),
                     // Adjust aspect ratio for responsiveness
                     children: notes
                         .map((e) => NotePreview(

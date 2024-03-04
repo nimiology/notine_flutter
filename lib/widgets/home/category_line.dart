@@ -19,6 +19,7 @@ class CategoryLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isSmallScreen = MediaQuery.of(context).size.width < 600;
 
     return Column(
       children: [
@@ -53,10 +54,12 @@ class CategoryLine extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 5),
           child: ListView(
               scrollDirection: Axis.horizontal,
+              
               children: notes.reversed
-                  .take(3)
+                  .take(isSmallScreen ? 3 : 15)
                   .map((e) => NotePreview(
-                      note: e,))
+                        note: e,
+                      ))
                   .toList()),
         )
       ],

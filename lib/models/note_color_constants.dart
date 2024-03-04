@@ -20,7 +20,6 @@ final Map<Color, String> colorNames = {
   Colors.deepOrange: 'Deep Orange',
   Colors.grey: 'Grey',
   Colors.blueGrey: 'Blue Grey',
-  Colors.white: 'White',
   Colors.deepOrangeAccent: 'Deep Orange Accent',
   Colors.deepPurpleAccent: 'Deep Purple Accent',
   Colors.greenAccent: 'Green Accent',

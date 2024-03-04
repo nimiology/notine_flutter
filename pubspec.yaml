@@ -37,7 +37,6 @@ dependencies:
   cupertino_icons: ^1.0.2
   http: ^0.13.6
   flutter_secure_storage: ^8.1.0
-  sqflite: ^2.2.8+4
   jwt_decoder: ^2.0.1
   google_fonts: ^4.0.4
   flutter_svg: ^2.0.5
@@ -45,6 +44,8 @@ dependencies:
   provider: ^6.1.1
   flutter_data: ^1.5.14
   connectivity_plus: ^5.0.2
+  sqflite_common_ffi: ^2.2.5
+  sqflite: ^2.2.8+4
 
 dev_dependencies:
   flutter_test:
