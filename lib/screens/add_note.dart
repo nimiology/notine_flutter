@@ -50,7 +50,7 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
         descriptionController.text == note?.content &&
         this.color == note?.color &&
         this.category?.title == note?.category.title) {
-      return;
+      return Navigator.of(context).pop();
     }
     saving = true;
     final title = titleController.text;

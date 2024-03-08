@@ -34,6 +34,7 @@ class Note {
 
   void delete() async {
     await DBHelper.deleteWithID("note", id!);
+
     SyncQueue.queueSyncRequest(action: 'delete', tableName: 'note', data: {
       'id': id,
       'server_id': serverId,
@@ -41,6 +42,8 @@ class Note {
       'content': content,
       'color': colorNames[color],
       'category_title': category.title,
+      'created': created.millisecondsSinceEpoch,
+      'updated': updated.millisecondsSinceEpoch,
     });
   }
 

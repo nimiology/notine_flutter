@@ -8,17 +8,17 @@ class DBHelper {
     final dbPath = await getDatabasesPath();
     if (Platform.isWindows) {
       return databaseFactory.openDatabase(
-        path.join(dbPath, 'database.db'),
+        path.join(dbPath, 'database2.db'),
         options: OpenDatabaseOptions(
           onCreate: _onCreate,
-          version: 1,
+          version: 3,
         ),
       );
     }
     return await openDatabase(
-        path.join(dbPath, 'database.db'),
+        path.join(dbPath, 'database2.db'),
         onCreate: _onCreate,
-        version: 1);
+        version: 3);
   }
 
   static _onCreate(db, version) async {
@@ -38,7 +38,8 @@ class DBHelper {
 
     await db.execute('''
           CREATE TABLE category(
-            title TEXT PRIMARY KEY
+            title TEXT PRIMARY KEY,
+            server_id INTEGER
           )
         ''');
 

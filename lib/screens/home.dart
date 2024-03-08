@@ -28,17 +28,25 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
   }
 
-  Map<String, List<Note>> getNotesByCategory(List<Note> noteList) {
+  Map<String, List<Note>> getNotesByCategory(
+      List<Note> noteList, List<Category> categories) {
     Map<String, List<Note>> notesByCategory = {};
 
     for (Note note in noteList) {
-      String category = note.category.title;
-
-      if (!notesByCategory.containsKey(category)) {
-        notesByCategory[category] = [];
+      String categoryTitle = note.category.title;
+      final index = categories.indexWhere((element) => element.title == categoryTitle);
+      if(index != -1){
+        final category = categories[index];
+        note.category = category;
       }
 
-      notesByCategory[category]!.add(note);
+      final category = note.category;
+
+      if (!notesByCategory.containsKey(category.title)) {
+        notesByCategory[category.title] = [];
+      }
+
+      notesByCategory[category.title]!.add(note);
     }
 
     return notesByCategory;
@@ -47,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> getNotes() async {
     Provider.of<CategoryProvider>(context, listen: false).fetchCategories();
     Provider.of<SyncQueueProvider>(context, listen: false).processSyncQueue();
-    await Provider.of<NoteProvider>(context, listen: false).fetchNotes();
+    Provider.of<NoteProvider>(context, listen: false).fetchNotes();
   }
 
   @override
@@ -58,7 +66,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
         body: Consumer<NoteProvider>(
           builder: (context, noteProvider, _) {
-            final categories = getNotesByCategory(noteProvider.notes);
+            final categories = getNotesByCategory(noteProvider.notes,
+                Provider.of<CategoryProvider>(context).categories);
             return RefreshIndicator(
               onRefresh: getNotes,
               child: ListView(
@@ -113,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ...categories.keys.map((key) {
                     return CategoryLine(
-                      category: Category(title: key),
+                      category: categories[key]![0].category,
                       notes: categories[key]!,
                       homeScreenSetState: getNotes,
                     );

@@ -36,7 +36,7 @@ class CategoryProvider extends ChangeNotifier {
   Future<void> getCategory() async {
     List categoryList = await DBHelper.getData('category');
     for (Map categoryMap in categoryList) {
-      _categories.add(Category.categoryFromMap(categoryMap));
+      _categories.add(Category.categoryFromDB(categoryMap));
     }
   }
 
@@ -49,10 +49,18 @@ class CategoryProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final responseData = json.decode(utf8.decode(response.bodyBytes));
         for (Map categoryMap in responseData) {
-          final category = Category(title: categoryMap['title']);
+          final category = Category(
+              title: categoryMap['title'], serverId: categoryMap['id']);
           if (!_categories.any((element) => element.title == category.title)) {
             category.save();
             _categories.add(category);
+          } else{
+            final index = _categories.indexWhere((element) => element.title == category.title);
+            final oldCategory = _categories[index];
+            if (category.serverId != oldCategory.serverId) {
+              oldCategory.serverId = categoryMap['id'];
+              oldCategory.save();
+            }
           }
         }
       }
@@ -62,16 +70,16 @@ class CategoryProvider extends ChangeNotifier {
 
 class Category {
   final String title;
+  int? serverId;
 
-  Category({required this.title});
+  Category({required this.title, this.serverId});
 
   void delete() async {
     await DBHelper.deleteWithTitle("note", title);
-    SyncQueue.queueSyncRequest(
-        action: 'delete',
-        tableName: 'category',
-        data: {'title': title,}
-    );
+    SyncQueue.queueSyncRequest(action: 'delete', tableName: 'category', data: {
+      'title': title,
+      'server_id': serverId,
+    });
   }
 
   static Future<int> createCategoryAPI(String title) async {
@@ -83,30 +91,43 @@ class Category {
         ),
         body: {'title': title},
         headers: {'Authorization': "Bearer $token"});
+    if (response.statusCode == 201) {
+      final responseData = json.decode(utf8.decode(response.bodyBytes));
+      final Map<String, Object> instanceMap = {
+        'title': responseData['title'],
+        'server_id': responseData['id'],
+      };
+      DBHelper.insert('note', instanceMap);
+    }
     return response.statusCode;
   }
 
   static Future<int> deleteCategoryAPI(Map data) async {
     final token = await AuthToken.accessToken();
     final response = await http.delete(
-        Uri.parse('https://notine.pythonanywhere.com/category/${data["title"]}/'),
+        Uri.parse(
+            'https://notine.pythonanywhere.com/category/${data["server_id"]}/'),
         headers: {'Authorization': "Bearer $token"});
     if (response.statusCode == 204) {
-      final category = Category.categoryFromMap(data);
+      final category = Category.categoryFromDB(data);
       await DBHelper.deleteWithTitle("category", category.title);
     }
-    print(response.body);
     return response.statusCode;
   }
 
-  static Category categoryFromMap(Map map) {
-    return Category(title: map['title']);
+  static Category categoryFromDB(Map map) {
+    return Category(title: map['title'], serverId: map['server_id']);
+  }
+
+  static Category categoryFromAPi(Map map) {
+    return Category(title: map['title'], serverId: map['id']);
   }
 
   void save() async {
-    final instanceMap = {
-      'title': title,
-    };
+    final Map<String, Object> instanceMap = {'title': title};
+    if (serverId!=null) {
+      instanceMap['server_id']= serverId!;
+    }
     DBHelper.insert('category', instanceMap);
   }
 
